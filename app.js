@@ -543,7 +543,9 @@ function trapFocus(e){
    ============================================================ */
 root.addEventListener('click', function(e){
   const view = e.target.closest('[data-view]');
-  if (view){ e.preventDefault(); openModal(byId[view.getAttribute('data-view')]); return; }
+  const modifiedLink = view && view.matches('a[href]') &&
+    (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
+  if (view && !modifiedLink){ e.preventDefault(); openModal(byId[view.getAttribute('data-view')]); return; }
 
   const cp = e.target.closest('[data-copy]');
   if (cp){
