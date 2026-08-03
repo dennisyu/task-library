@@ -3,7 +3,7 @@ name: establish-entity-identity
 description: Lock one consistent name, domain, and headshot across the entire web so Google can reconcile a single entity worthy of a Knowledge Panel.
 category: Personal Branding
 stage: —
-definitive_article: /knowledge-panel
+definitive_article: /what-is-a-knowledge-panel
 status: needs-work
 ---
 
@@ -42,5 +42,5 @@ Because it persists, the quarterly re-audit actually happens, and the clean iden
 See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
-- Hub: /knowledge-panel
+- Hub: /what-is-a-knowledge-panel
 - Related: /personal-brand · builds on: add-consistent-headshots-and-bios-across-profiles · next: build-third-party-validation
