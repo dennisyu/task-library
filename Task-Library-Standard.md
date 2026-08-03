@@ -6,8 +6,8 @@
 
 ---
 
-## The model: three artifacts per concept
-Every concept/task in the library produces **three linked artifacts**, and they point at each other:
+## The target model: three artifacts per concept
+The desired architecture gives each concept/task **three linked artifacts**. Coverage is reported separately because a task can have a runnable skill while its hub or accepted example is still missing:
 
 1. **Definitive article** — the one canonical page that owns the concept (the hub). Lives on blitzmetrics.com at a short URL.
 2. **skill.md** — the machine-readable SOP an AI agent runs to *do* the task. Downloadable, one file per task. References its definitive article.
@@ -22,7 +22,7 @@ A page is only "definitive" if it meets **all nine**. Miss one and it's a draft 
 
 1. **Clear definition in the first two paragraphs** — what it is, what it is *not*, who it's for. Plain language, no unexplained jargon.
 2. **The complete process / framework** — the full SOP, every stage/step/checklist. Detailed enough to follow without further instruction.
-3. **Lots of real examples** — link *every* example that exists, not three or five. Each with a 1–2 sentence note on why it's relevant.
+3. **Relevant accepted examples** — link inspectable examples that demonstrate the stated process and acceptance criteria. Do not use example volume as a substitute for quality, consent, or traceable outcomes.
 4. **Links to related concepts** — cross-link the other definitive articles (builds the entity graph).
 5. **Links to the course/guide/service** — as a CTA near the bottom, not as the core content.
 6. **Compliance with Blog Posting Guidelines** — title <60 chars; meta description <160; primary keyword in first paragraph; H2/H3 structure; short paragraphs; active voice; no AI-fluff phrases; no stock images; entity-linking decision tree for internal links.
@@ -52,7 +52,7 @@ Run in order for any task in a Yellow/Red (Needs Work / Gap) state:
 - Published as a **Post** (not a Page).
 - Assigned to the **Definitive Articles** category.
 - Tagged with the **Content Factory stage** (`Stage: Produce | Process | Post | Promote`) and any cross-cutting **Topic:** tags. This lets agents pull, e.g., `category=definitive-articles&tag=stage-process` from the REST API.
-- Authored in the **standard block editor (Gutenberg)** — **not Cornerstone** or any proprietary builder (builder content is opaque to AI agents and hard to update programmatically).
+- Prefer the **standard block editor (Gutenberg)** because its structure is easier to inspect and update through supported interfaces. A proprietary builder is not automatically disqualifying, but the task must name the additional access/tooling and prove that the content remains inspectable, editable, and recoverable.
 
 ---
 
@@ -99,16 +99,19 @@ status: <complete | needs-work | gap>
 - The `name` slug is permanent (installs/bundles depend on it). Match the task slug.
 - Steps must mirror the task's real SOP — use the definitive article's documented process, Dennis's frameworks (GCT, MAA, the 4 P's, SEO Tree, entity-linking decision tree, Dollar a Day mechanics), and the task description. No invented tools or fabricated URLs — reference only the task's real definitive-article short URL and known BlitzMetrics concepts.
 - Every skill.md must carry a **Definition of done** checklist (the QA layer) and at least a placeholder **Example** so the meta-article loop has a slot to fill.
+- Agent persistence, memory, autonomy, self-verification, or named-model behavior must be labeled as design intent until a frozen stack and accepted evidence record support it. Do not present orchestration prose as demonstrated capability.
 - For **gap** tasks (no article yet), set `definitive_article: GAP — to be written`, write the SOP from the description + method, and flag the missing hub.
 
 ---
 
 ## Examples = meta-articles
-"Lots of real examples" (Requirement 3) is satisfied by **meta-articles** — each documents one real run of the task via the Meta-Article Prompt and links back to the definitive article. A task is fully "Green" when its definitive article exists, its skill.md is published, and it has at least one linked example/meta-article. The `/meta-article-prompt-template` (29 linked examples) and `/internal-linking` ("includes skill file for AI agents") are the models to copy.
+Requirement 3 is supported by **meta-articles** — each documents one real run of the task via the Meta-Article Prompt and links back to the definitive article. A task is fully verified only when its canonical article, skill, and at least one accepted example are all inspectable and have a dated review receipt. The `/meta-article-prompt-template` and `/internal-linking` are useful structural models; their presence is not evidence that a different task succeeds.
 
 ---
 
 ## Status legend (matches the dashboard)
-- **Complete (Green)** — definitive article exists and meets all nine requirements; skill.md present; ≥1 example.
-- **Needs Work (Yellow)** — a page exists but misses ≥1 requirement, or has no skill.md / no example yet.
-- **Gap (Red)** — no definitive article yet; skill.md is authored from the task definition and flags the missing hub.
+- **Complete (documentation-ready)** — the skill owner says the contract is ready and the build validates its required fields and sections. This does **not** prove that the linked article meets all nine requirements, that an example passed, or that the task works in production.
+- **Needs Work** — runnable or partially documented guidance with a known contract, article, example, ownership, or review gap.
+- **Gap** — a defined task whose hub or runnable guidance is explicitly missing/incomplete.
+
+Article coverage, ownership, example acceptance, and E0–E4 execution evidence are separate fields. Never infer one from the documentation status.
