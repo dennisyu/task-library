@@ -135,6 +135,68 @@ class CapabilityGuardrailTests(unittest.TestCase):
             'Definitive Article URL': ''
         }))
 
+    def test_reviewed_task_page_map_attaches_no_inferred_pages_and_deduplicates_alias(self):
+        index = task_build.load_task_page_index()
+        tasks = [{'slug': slug} for slug in index['tasks']]
+        tasks.append({'slug': 'unmapped-task'})
+        stats = task_build.attach_task_pages(tasks, index)
+        by_slug = {item['slug']: item for item in tasks}
+        self.assertEqual(stats, {
+            'tasksWithTaskPage': len(index['tasks']),
+            'tasksWithoutTaskPage': 1,
+            'uniqueTaskPages': len({match['url'] for match in index['tasks'].values()}),
+        })
+        self.assertIsNone(by_slug['unmapped-task']['taskPage'])
+        self.assertIsNone(by_slug['unmapped-task']['taskPageMatch'])
+        alias = by_slug['how-to-process-videos-via-marketscale']
+        canonical = by_slug['process-videos-via-marketscale']
+        self.assertEqual(alias['taskPageMatch'], {
+            'matchMethod': 'legacy-alias',
+            'canonicalTask': 'process-videos-via-marketscale',
+        })
+        self.assertEqual(alias['taskPage'], canonical['taskPage'])
+
+    def test_task_page_map_rejects_alias_url_drift(self):
+        index = task_build.load_task_page_index()
+        index['tasks']['how-to-process-videos-via-marketscale']['url'] = (
+            'https://blitzmetrics.com/not-the-canonical-task-page/'
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'task-pages.json'
+            path.write_text(json.dumps(index), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'alias URL'):
+                task_build.load_task_page_index(path)
+
+    def test_static_index_labels_exact_task_page_separately_from_broader_hub(self):
+        data = {
+            'updated': 'August 2, 2026',
+            'stats': {
+                'total': 1, 'categories': 1, 'tasksWithTaskPage': 1,
+                'tasksWithoutTaskPage': 0, 'complete': 1, 'needsWork': 0, 'gaps': 0,
+            },
+            'categories': [{
+                'name': 'Website QA Audit',
+                'description': 'Checks',
+                'tasks': [{
+                    'slug': 'verify-one-thing', 'title': 'verify-one-thing',
+                    'desc': 'Verify one bounded thing',
+                    'taskPage': 'https://blitzmetrics.com/exact-task/',
+                    'article': 'https://blitzmetrics.com/broader-hub/',
+                    'capability': {
+                        'aiExecution': 80, 'humanAccountability': 40,
+                        'automationExposure': 58,
+                    },
+                }],
+            }],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'library-index.html'
+            task_build.write_library_index(data, path)
+            output = path.read_text(encoding='utf-8')
+        self.assertIn('>Exact task SOP</a>', output)
+        self.assertIn('>Broader definitive hub</a>', output)
+        self.assertNotIn('>Definitive article</a>', output)
+
     def test_skill_links_use_the_current_knowledge_panel_canonical(self):
         skills = Path(__file__).resolve().parents[1] / 'skills'
         legacy = re.compile(r'(?<![a-z-])/knowledge-panel(?=$|[\s).,/?#])')
