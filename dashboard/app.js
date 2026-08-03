@@ -268,7 +268,10 @@ cards.forEach(function(c){ countUp(el('[data-stat="' + c.k + '"]'), S[c.k] || 0)
   el('#btl-health-legend').innerHTML =
     '<span><span class="d d-ok"></span><b>' + fmt(ok) + '</b> complete</span>' +
     '<span><span class="d d-warn"></span><b>' + fmt(warn) + '</b> needs work</span>' +
-    '<span><span class="d d-bad"></span><b>' + fmt(bad) + '</b> gaps</span>';
+    '<span><span class="d d-bad"></span><b>' + fmt(bad) + '</b> gaps</span>' +
+    '<span><b>' + fmt(S.tasksWithArticle || 0) + '</b> article-linked</span>' +
+    '<span><b>' + fmt(S.tasksWithoutArticle || 0) + '</b> need a hub</span>' +
+    '<span><b>' + fmt(S.definitiveArticles || 0) + '</b> unique hubs</span>';
 })();
 
 (function capabilitySummary(){
@@ -281,6 +284,10 @@ cards.forEach(function(c){ countUp(el('[data-stat="' + c.k + '"]'), S[c.k] || 0)
   el('#btl-cap-asof').textContent = (C.asOf || DATA.updated || '—') + ' · rubric v' + (C.version || '—');
   const method = el('#btl-cap-method');
   if (method && C.methodologyUrl){ method.href = C.methodologyUrl; method.hidden = false; }
+  const guard = el('#btl-capability .btl-cap-guardrail');
+  if (guard && S.agentClaimTasks){
+    guard.innerHTML += ' <strong>' + fmt(S.agentClaimTasks) + ' skills</strong> contain unverified agent-persistence, memory, or model-specific design language; those statements remain E0 and reduce readiness until a frozen stack passes accepted trials.';
+  }
 })();
 
 /* ============================================================
@@ -466,6 +473,8 @@ function capabilityCard(t){
   const reasons = (c.reasons || []).map(function(r){ return '<li>' + esc(r) + '</li>'; }).join('');
   const method = DATA.capabilityIndex && DATA.capabilityIndex.methodologyUrl
     ? '<a href="' + esc(DATA.capabilityIndex.methodologyUrl) + '" target="_blank" rel="noopener">Read the rubric ↗</a>' : '';
+  const taskNote = t.flag
+    ? '<p class="btl-cap-guard"><strong>Task note:</strong> ' + esc(t.flag) + '</p>' : '';
   return '<section class="btl-cap-detail" aria-label="AI capability scorecard">' +
     '<div class="btl-cap-detail-head"><div><span class="btl-overline">AI Capability Index v' + esc(c.version || '—') + '</span>' +
       '<h4>' + esc(c.mode || 'Not scored') + '</h4></div>' + method + '</div>' +
@@ -477,6 +486,7 @@ function capabilityCard(t){
       '<div><b>' + c.readiness + '</b><span>Deployment readiness</span></div>' +
     '</div>' +
     '<div class="btl-cap-notes"><span>Evidence: <strong>' + esc(evidenceLevel + evidenceResult) + '</strong></span><span>Confidence: <strong>' + esc(c.confidence || '—') + '</strong></span><span>Access: <strong>' + esc(c.access || '—') + '</strong></span></div>' +
+    taskNote +
     (reasons ? '<ul>' + reasons + '</ul>' : '') +
   '</section>';
 }
