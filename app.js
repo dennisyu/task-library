@@ -204,11 +204,11 @@ DATA.categories.forEach(function(c, ci){
 const dl = el('#btl-dl');
 if (DATA.bundleUrl){
   dl.href = DATA.bundleUrl;
-  dl.textContent = '⬇ Download all ' + (DATA.stats.total || 0) + ' skills (.zip)';
+  dl.textContent = '⬇ Download ' + (DATA.stats.runnableSkills || 0) + ' runnable skills (.zip)';
   var readyLink = document.createElement('a');
   readyLink.href = 'TaskLibrary-Skills-ready.zip';
   readyLink.className = 'btl-btn';
-  readyLink.textContent = 'Owner-signed only (' + (DATA.stats.complete || 0) + ') ⬇';
+  readyLink.textContent = 'Documentation-complete (' + (DATA.stats.readySkills || 0) + ') ⬇';
   dl.parentNode.insertBefore(readyLink, dl.nextSibling);
 } else { dl.hidden = true; }
 const metaBtn = el('#btl-meta');
