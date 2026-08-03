@@ -10,3 +10,4 @@ dashboard/llms.txt
 dashboard/task-registry.json
 dashboard/task-registry.schema.json
 dashboard/evidence-summary.json
+dashboard/public-article-audit.json
