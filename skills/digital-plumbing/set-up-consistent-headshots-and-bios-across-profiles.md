@@ -43,4 +43,4 @@ See `boil-the-ocean.md` for the full operating principles.
 ## Definitive article & links
 - Hub: GAP — to be written (no dedicated hub yet; parent concept: /digital-plumbing)
 - Related (run order): claim-and-brand-facebook-page → convert-instagram-to-professional-account → set-up-youtube-channel-with-proper-branding → create-linkedin-page-matching-business-entity → this
-- Cross-links: /knowledge-panel (entity identity) · /personal-brand (Phase 1) · ensure-nap-consistency-across-platforms (same discipline, applied to identity)
+- Cross-links: /what-is-a-knowledge-panel (entity identity) · /personal-brand (Phase 1) · ensure-nap-consistency-across-platforms (same discipline, applied to identity)
