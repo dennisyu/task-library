@@ -43,5 +43,5 @@ See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
 - Hub: GAP — to be written (interim grounding: /website-qa-audit "Verify WordPress author set to site owner name" and /blog-posting-guidelines)
-- Related: /personal-brand · /knowledge-panel (entity attribution feeds the panel)
+- Related: /personal-brand · /what-is-a-knowledge-panel (entity attribution feeds the panel)
 - Run order (Post stage): step-14b-run-linkwhisper-for-internal-links → **set-wordpress-author-to-correct-person** → place-content-on-seo-tree-with-proper-links
