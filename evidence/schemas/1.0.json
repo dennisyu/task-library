@@ -1,0 +1,690 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goodrich-dev.github.io/task-library/evidence/schemas/1.0.json",
+  "title": "Content Factory task capability evidence record",
+  "description": "An immutable, per-task trial record. Structural validation is supplemented by build/validate_evidence.py for cross-reference, acceptance, evidence-level, and staleness rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordId",
+    "recordedAt",
+    "recordedBy",
+    "task",
+    "claim",
+    "resultInterpretation",
+    "trial",
+    "testedStacks",
+    "artifacts",
+    "arms",
+    "freshness",
+    "supersedesRecordIds"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0" },
+    "recordId": { "type": "string", "format": "uuid" },
+    "recordedAt": { "$ref": "#/$defs/timestamp" },
+    "recordedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "role": { "type": "string", "minLength": 2 },
+        "organization": { "type": "string" }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "taskContractVersion", "skill"],
+      "properties": {
+        "slug": { "$ref": "#/$defs/slug" },
+        "taskContractVersion": { "type": "string", "minLength": 1 },
+        "skill": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["uri", "revision", "sha256"],
+          "properties": {
+            "uri": { "type": "string", "minLength": 1 },
+            "path": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\./).+$" },
+            "revision": { "type": "string", "minLength": 7 },
+            "sha256": {
+              "$ref": "#/$defs/sha256",
+              "description": "SHA-256 of the exact resolved skill source, including terminal whitespace such as a trailing newline."
+            }
+          }
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidenceLevel", "policyVersion", "summary"],
+      "properties": {
+        "evidenceLevel": { "enum": ["E1", "E2", "E3", "E4"] },
+        "policyVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$" },
+        "summary": { "type": "string", "minLength": 10 }
+      }
+    },
+    "resultInterpretation": {
+      "enum": ["supports-capability", "does-not-support-capability", "mixed"]
+    },
+    "trial": { "$ref": "#/$defs/trial" },
+    "testedStacks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/stack" }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "arms": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/arm" }
+    },
+    "production": { "$ref": "#/$defs/production" },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewDueAt", "materialChangeTriggers"],
+      "properties": {
+        "reviewDueAt": { "$ref": "#/$defs/timestamp" },
+        "materialChangeTriggers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "skill-revision",
+              "model-version",
+              "tool-version",
+              "permission-scope",
+              "acceptance-criteria",
+              "environment",
+              "context-snapshot",
+              "policy-version"
+            ]
+          }
+        }
+      }
+    },
+    "supersedesRecordIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "format": "uuid" }
+    },
+    "notes": { "type": "string" }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(?:Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "date": { "type": "string", "format": "date" },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-+[a-z0-9]+)*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "nonNegativeNumber": { "type": "number", "minimum": 0 },
+    "unitScore": { "type": "number", "minimum": 0, "maximum": 1 },
+    "immutableRelease": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "identifier"],
+      "properties": {
+        "kind": { "enum": ["provider-snapshot", "artifact-digest"] },
+        "identifier": { "type": "string", "minLength": 1 },
+        "artifactId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "trial": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trialId",
+        "startedAt",
+        "completedAt",
+        "environment",
+        "caseDesign",
+        "cases",
+        "protocol"
+      ],
+      "properties": {
+        "trialId": { "$ref": "#/$defs/id" },
+        "startedAt": { "$ref": "#/$defs/timestamp" },
+        "completedAt": { "$ref": "#/$defs/timestamp" },
+        "environment": { "enum": ["sandbox", "staging", "production"] },
+        "caseDesign": {
+          "enum": ["known-demonstration", "repeated-cases", "held-out", "production"]
+        },
+        "cases": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["caseId", "sourceType", "inputArtifactIds"],
+            "properties": {
+              "caseId": { "$ref": "#/$defs/id" },
+              "sourceType": { "enum": ["known", "held-out", "production"] },
+              "inputArtifactIds": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "riskLevel": { "enum": ["R0", "R1", "R2", "R3"] },
+              "releasedAt": { "$ref": "#/$defs/timestamp" },
+              "contaminationCheck": { "enum": ["passed", "failed", "not-run"] },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "protocol": { "$ref": "#/$defs/protocol" }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocolId",
+        "version",
+        "preRegisteredAt",
+        "assignment",
+        "minimumWeightedScore",
+        "acceptanceCriteria",
+        "criticalFailures",
+        "evaluator"
+      ],
+      "properties": {
+        "protocolId": { "$ref": "#/$defs/id" },
+        "version": { "type": "string", "minLength": 1 },
+        "preRegisteredAt": {
+          "oneOf": [
+            { "$ref": "#/$defs/timestamp" },
+            { "type": "null" }
+          ]
+        },
+        "preregistration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["protocolArtifactId", "publishedAt", "protocolSha256", "binding"],
+          "properties": {
+            "protocolArtifactId": { "$ref": "#/$defs/id" },
+            "publishedAt": { "$ref": "#/$defs/timestamp" },
+            "protocolSha256": { "$ref": "#/$defs/sha256" },
+            "binding": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "immutableRef"],
+              "properties": {
+                "kind": { "enum": ["git-commit", "signed-receipt"] },
+                "immutableRef": { "type": "string", "minLength": 12 },
+                "receiptArtifactId": { "$ref": "#/$defs/id" },
+                "issuerId": { "$ref": "#/$defs/id" },
+                "signature": { "type": "string", "minLength": 32 }
+              }
+            }
+          }
+        },
+        "assignment": {
+          "enum": ["single-arm", "paired", "randomized", "counterbalanced"]
+        },
+        "primaryComparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["humanOnlyArmId", "aiOnlyArmId", "humanAiArmId"],
+          "properties": {
+            "humanOnlyArmId": { "$ref": "#/$defs/id" },
+            "aiOnlyArmId": { "$ref": "#/$defs/id" },
+            "humanAiArmId": { "$ref": "#/$defs/id" }
+          }
+        },
+        "minimumWeightedScore": { "type": "number", "minimum": 0.7, "maximum": 1 },
+        "acceptanceCriteria": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["criterionId", "description", "critical", "weight"],
+            "properties": {
+              "criterionId": { "$ref": "#/$defs/id" },
+              "description": { "type": "string", "minLength": 5 },
+              "critical": { "type": "boolean" },
+              "weight": { "type": "number", "exclusiveMinimum": 0 }
+            }
+          }
+        },
+        "criticalFailures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["failureId", "description", "severity"],
+            "properties": {
+              "failureId": { "$ref": "#/$defs/id" },
+              "description": { "type": "string", "minLength": 5 },
+              "severity": { "enum": ["S2", "S3", "S4"] }
+            }
+          }
+        },
+        "evaluator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "independence", "blinded"],
+          "properties": {
+            "id": { "$ref": "#/$defs/id" },
+            "independence": { "enum": ["operator", "peer", "independent"] },
+            "blinded": { "type": "boolean" },
+            "notes": { "type": "string" }
+          }
+        }
+      }
+    },
+    "stack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stackId",
+        "testedAt",
+        "model",
+        "orchestrator",
+        "tools",
+        "memory",
+        "contextArtifactIds",
+        "permissions"
+      ],
+      "properties": {
+        "stackId": { "$ref": "#/$defs/id" },
+        "testedAt": { "$ref": "#/$defs/timestamp" },
+        "model": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider", "modelId", "version", "surface", "reasoningMode"],
+          "properties": {
+            "provider": { "type": "string", "minLength": 1 },
+            "modelId": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 },
+            "surface": { "type": "string", "minLength": 1 },
+            "reasoningMode": { "type": "string", "minLength": 1 },
+            "parameters": { "type": "object" },
+            "immutableRelease": { "$ref": "#/$defs/immutableRelease" }
+          }
+        },
+        "orchestrator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 },
+            "immutableRelease": { "$ref": "#/$defs/immutableRelease" }
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "version", "accessMode", "scopes"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "version": { "type": "string", "minLength": 1 },
+              "immutableRelease": { "$ref": "#/$defs/immutableRelease" },
+              "accessMode": { "enum": ["read", "draft", "write", "admin"] },
+              "scopes": {
+                "type": "array",
+                "items": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
+        },
+        "memory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "description"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "description": { "type": "string" },
+            "snapshotArtifactId": { "$ref": "#/$defs/id" }
+          }
+        },
+        "contextArtifactIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["system", "level", "scope", "approvedBy", "approvedAt"],
+            "properties": {
+              "system": { "type": "string", "minLength": 1 },
+              "level": { "enum": ["none", "read", "draft", "write", "admin"] },
+              "scope": { "type": "string", "minLength": 1 },
+              "approvedBy": { "$ref": "#/$defs/id" },
+              "approvedAt": { "$ref": "#/$defs/timestamp" }
+            }
+          }
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactId",
+        "kind",
+        "uri",
+        "sha256",
+        "access",
+        "containsSensitiveData",
+        "redaction"
+      ],
+      "properties": {
+        "artifactId": { "$ref": "#/$defs/id" },
+        "kind": {
+          "enum": ["input", "output", "protocol", "evaluation", "log", "context", "recovery", "downstream"]
+        },
+        "uri": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "mediaType": { "type": "string" },
+        "access": { "enum": ["public", "restricted", "owner-only"] },
+        "containsSensitiveData": { "type": "boolean" },
+        "redaction": { "enum": ["none-needed", "redacted", "not-shareable"] },
+        "privacyReviewArtifactId": { "$ref": "#/$defs/id" },
+        "notes": { "type": "string" }
+      }
+    },
+    "arm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["armId", "mode", "operatorIds", "attempts"],
+      "properties": {
+        "armId": { "$ref": "#/$defs/id" },
+        "mode": { "enum": ["human-only", "ai-only", "human-ai"] },
+        "stackId": { "$ref": "#/$defs/id" },
+        "operatorIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "attempts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/attempt" }
+        }
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attemptId",
+        "caseId",
+        "startedAt",
+        "completedAt",
+        "status",
+        "outputArtifactIds",
+        "acceptance",
+        "labor",
+        "errors"
+      ],
+      "properties": {
+        "attemptId": { "$ref": "#/$defs/id" },
+        "caseId": { "$ref": "#/$defs/id" },
+        "startedAt": { "$ref": "#/$defs/timestamp" },
+        "completedAt": { "$ref": "#/$defs/timestamp" },
+        "status": { "enum": ["completed", "aborted"] },
+        "outputArtifactIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "acceptance": { "$ref": "#/$defs/acceptance" },
+        "measurements": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["quality", "endToEndScope"],
+          "properties": {
+            "quality": { "$ref": "#/$defs/unitScore" },
+            "autonomousShare": { "$ref": "#/$defs/unitScore" },
+            "endToEndScope": { "$ref": "#/$defs/unitScore" },
+            "generalization": { "$ref": "#/$defs/unitScore" }
+          }
+        },
+        "labor": { "$ref": "#/$defs/labor" },
+        "cost": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["currency", "amount"],
+          "properties": {
+            "currency": { "const": "USD" },
+            "amount": { "$ref": "#/$defs/nonNegativeNumber" }
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/error" }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overall", "criterionResults"],
+      "properties": {
+        "overall": { "enum": ["accepted", "rejected", "not-evaluated"] },
+        "judgedAt": { "$ref": "#/$defs/timestamp" },
+        "evaluatorId": { "$ref": "#/$defs/id" },
+        "criterionResults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["criterionId", "result", "evidenceArtifactIds", "receiptArtifactId", "receiptIssuerId", "receiptSignature"],
+            "properties": {
+              "criterionId": { "$ref": "#/$defs/id" },
+              "result": { "enum": ["pass", "fail", "not-evaluated"] },
+              "receiptArtifactId": { "$ref": "#/$defs/id" },
+              "receiptIssuerId": { "$ref": "#/$defs/id" },
+              "receiptSignature": { "type": "string", "minLength": 32 },
+              "evidenceArtifactIds": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "labor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operatorMinutes",
+        "preparationMinutes",
+        "supervisionMinutes",
+        "reviewMinutes",
+        "interventions"
+      ],
+      "properties": {
+        "operatorMinutes": { "$ref": "#/$defs/nonNegativeNumber" },
+        "preparationMinutes": { "$ref": "#/$defs/nonNegativeNumber" },
+        "supervisionMinutes": { "$ref": "#/$defs/nonNegativeNumber" },
+        "reviewMinutes": { "$ref": "#/$defs/nonNegativeNumber" },
+        "interventions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["interventionId", "category", "initiatedBy", "minutes", "description"],
+            "properties": {
+              "interventionId": { "$ref": "#/$defs/id" },
+              "category": {
+                "enum": ["prompt", "context", "tool", "permission", "correction", "escalation", "rollback"]
+              },
+              "initiatedBy": { "enum": ["human", "agent", "system"] },
+              "minutes": { "$ref": "#/$defs/nonNegativeNumber" },
+              "description": { "type": "string", "minLength": 3 }
+            }
+          }
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "errorId",
+        "severity",
+        "detectedStage",
+        "detectedBy",
+        "description",
+        "evidenceArtifactIds",
+        "recovery"
+      ],
+      "properties": {
+        "errorId": { "$ref": "#/$defs/id" },
+        "severity": { "enum": ["S0", "S1", "S2", "S3", "S4"] },
+        "detectedStage": { "enum": ["pre-release", "post-release"] },
+        "detectedBy": { "enum": ["agent", "human", "automated-check", "customer", "system"] },
+        "description": { "type": "string", "minLength": 5 },
+        "criticalFailureId": { "$ref": "#/$defs/id" },
+        "incidentId": { "$ref": "#/$defs/id" },
+        "evidenceArtifactIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        },
+        "recovery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["attempted", "successful", "minutes", "action", "artifactIds"],
+          "properties": {
+            "attempted": { "type": "boolean" },
+            "successful": { "type": ["boolean", "null"] },
+            "minutes": { "$ref": "#/$defs/nonNegativeNumber" },
+            "action": { "type": "string" },
+            "artifactIds": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/id" }
+            }
+          }
+        }
+      }
+    },
+    "production": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "periodStart",
+        "periodEnd",
+        "deploymentId",
+        "accountableOwnerId",
+        "samplingFrameArtifactId",
+        "eventLedgerArtifactId",
+        "eventLedgerIssuerId",
+        "eventLedgerSignature",
+        "incidents",
+        "downstreamOutcomes"
+      ],
+      "properties": {
+        "periodStart": { "$ref": "#/$defs/date" },
+        "periodEnd": { "$ref": "#/$defs/date" },
+        "deploymentId": { "$ref": "#/$defs/id" },
+        "accountableOwnerId": { "$ref": "#/$defs/id" },
+        "samplingFrameArtifactId": { "$ref": "#/$defs/id" },
+        "eventLedgerArtifactId": { "$ref": "#/$defs/id" },
+        "eventLedgerIssuerId": { "$ref": "#/$defs/id" },
+        "eventLedgerSignature": { "type": "string", "minLength": 32 },
+        "incidents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["incidentId", "severity", "discoveredAt", "description", "customerImpact", "status", "deploymentId", "armId", "stackId", "attemptIds"],
+            "properties": {
+              "incidentId": { "$ref": "#/$defs/id" },
+              "severity": { "enum": ["S0", "S1", "S2", "S3", "S4"] },
+              "discoveredAt": { "$ref": "#/$defs/timestamp" },
+              "description": { "type": "string", "minLength": 5 },
+              "customerImpact": { "type": "string" },
+              "status": { "enum": ["open", "mitigated", "resolved"] },
+              "deploymentId": { "$ref": "#/$defs/id" },
+              "armId": { "$ref": "#/$defs/id" },
+              "stackId": { "$ref": "#/$defs/id" },
+              "attemptIds": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "recoveryArtifactIds": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              }
+            }
+          }
+        },
+        "downstreamOutcomes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["metric", "unit", "value", "baseline", "direction", "target", "armId", "stackId", "attemptIds", "periodStart", "periodEnd", "outcomeIssuerId", "outcomeSignature", "evidenceArtifactIds"],
+            "properties": {
+              "metric": { "type": "string", "minLength": 2 },
+              "unit": { "type": "string", "minLength": 1 },
+              "value": { "type": "number" },
+              "baseline": { "type": "number" },
+              "direction": { "enum": ["increase", "decrease"] },
+              "target": { "type": "number" },
+              "armId": { "$ref": "#/$defs/id" },
+              "stackId": { "$ref": "#/$defs/id" },
+              "attemptIds": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              },
+              "periodStart": { "$ref": "#/$defs/date" },
+              "periodEnd": { "$ref": "#/$defs/date" },
+              "outcomeIssuerId": { "$ref": "#/$defs/id" },
+              "outcomeSignature": { "type": "string", "minLength": 32 },
+              "window": { "type": "string", "minLength": 1 },
+              "evidenceArtifactIds": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
