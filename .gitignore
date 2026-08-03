@@ -11,3 +11,5 @@ dashboard/task-registry.json
 dashboard/task-registry.schema.json
 dashboard/evidence-summary.json
 dashboard/public-article-audit.json
+dashboard/task-page-audit.json
+dashboard/internal-link-graph-audit.json
