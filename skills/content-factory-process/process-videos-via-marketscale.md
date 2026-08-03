@@ -3,15 +3,15 @@ name: process-videos-via-marketscale
 description: Use the MarketScale platform to process and distribute raw video as an alternate Process-stage path, returning finished assets to the Content Library.
 category: Content Factory — Process
 stage: Process
-definitive_article: GAP — to be written
-status: gap
+definitive_article: /how-to-process-videos-via-marketscale
+status: needs-work
 ---
 
 # Process videos via MarketScale
 
 **Use this when** a raw video is designated for the MarketScale processing/distribution path instead of (or alongside) the in-house Descript pipeline.
 
-> **Gap notice:** this task has no definitive article and no documented house SOP yet. The steps below are the provisional process from the task definition; the FIRST real run must be documented with the Meta-Article Prompt to seed the definitive article and harden this skill.
+> **Evidence notice:** the live MarketScale SOP now documents the operating path. This skill is still `needs-work` until its instructions are reconciled against a current, privacy-safe run and that run has an inspectable reviewer receipt. A live article is documentation, not capability evidence.
 
 ## Inputs
 - The raw video file from the Content Library `01-Raw` folder (already archived in Google Drive per Step 1 — Drive remains the system of record)
@@ -27,25 +27,25 @@ status: gap
 5. Approve distribution targets in line with the video's Targeting — and record exactly where MarketScale publishes it.
 6. Download the processed master and captions back into the Content Library (`02-In-Process` → `03-Published`), so the article pipeline (Steps 2–11) can still run off the same asset.
 7. Update the tracker: processed-asset links, distribution URLs, and status. Embed/link distribution URLs from the eventual article where appropriate.
-8. Document this run via `write-meta-article-documenting-agent-work` — the gap closes only when a real run is published and the definitive article gets written.
+8. Document this run via `write-meta-article-documenting-agent-work`, link the receipt from the live MarketScale SOP, and propose any discrepancies as an SOP repair instead of silently diverging from the canonical page.
 
 ## Definition of done (QA checklist)
 - [ ] Routing reason recorded; Drive still holds the master copy
 - [ ] Processed cut reviewed and approved against transcript-accuracy and authenticity standards
 - [ ] Distribution destinations recorded with URLs in the tracker
 - [ ] Processed assets returned to the Content Library for the article pipeline
-- [ ] First-run meta-article created (Meta-Article Prompt) to seed the missing definitive article
-- [ ] Linked back to the definitive article and relevant siblings (hub pending)
+- [ ] Privacy-safe run receipt reviewed and linked from the live MarketScale SOP
+- [ ] Linked back to the definitive article and relevant siblings
 
 ## Example(s)
-- Example needed — run the Meta-Article Prompt after first real run. No documented MarketScale run exists in the library yet; the first one defines the standard.
+- The live SOP contains worked interface examples and operating notes. A separate, privacy-safe end-to-end run receipt is still needed before this task can claim tested capability.
 
 ## Run on a persistent agent (Fable 5)
 
-A gap task is the ideal persistent-agent assignment: the agent (Claude Fable 5, or a comparable OpenAI/Google model that loops and holds memory) documents the run while executing it — routing reason, processing notes, distribution URLs — so the first pass produces both the deliverable and the meta-article that seeds the missing definitive article. It loops until assets are back in the Content Library and every tracker field is filled, never "distributed, details later." Memory carries each run's routing decisions forward into the SOP this task still lacks.
+An agent may assemble routing notes, processing status, distribution URLs, and the draft receipt, but the named operator owns platform access, approval, publishing destinations, and final QA. Persistence and memory behavior remain E0 design intent until a frozen stack passes accepted trials. The agent should surface conflicts between a real run and the live SOP for review.
 See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
-- Hub: GAP — to be written ("How to Process Videos via MarketScale" is on the Gaps & Tasks to Create list, low priority).
+- Exact task page: /how-to-process-videos-via-marketscale
 - Related: /content-factory, /blog-posting-guidelines (the parallel in-house path), /meta-article-prompt-template
 - Sibling skills, in run order: `step-1-upload-video-to-google-drive-and-descript` → this (alternate path) → `step-12-post-article-on-wordpress` (Post stage)
