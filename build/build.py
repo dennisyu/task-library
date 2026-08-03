@@ -445,7 +445,12 @@ def write_zip(data, out_dir, fname, note, only_complete):
              if (t.get('content') or '').strip() and (t['status'] == 'complete' or not only_complete)]
     path = os.path.join(out_dir, fname)
     with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as z:
-        manifest = {'total': len(ready), 'note': note, 'tasks': []}
+        manifest = {
+            'total': len(ready),
+            'note': note,
+            'operatingContract': 'boil-the-ocean.md',
+            'tasks': [],
+        }
         principles_path = os.path.join(ROOT, 'boil-the-ocean.md')
         if os.path.exists(principles_path):
             with open(principles_path, encoding='utf-8') as handle:
