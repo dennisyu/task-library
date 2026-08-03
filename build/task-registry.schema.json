@@ -16,12 +16,13 @@
     "semantics",
     "stats",
     "capabilityIndex",
+    "taskPageIndex",
     "categories",
     "tasks"
   ],
   "properties": {
     "$schema": { "type": "string", "format": "uri" },
-    "schemaVersion": { "const": "1.0" },
+    "schemaVersion": { "const": "1.1" },
     "registryRevision": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
     "name": { "type": "string", "minLength": 1 },
     "description": { "type": "string", "minLength": 1 },
@@ -96,6 +97,9 @@
         "definitiveArticles",
         "tasksWithArticle",
         "tasksWithoutArticle",
+        "tasksWithTaskPage",
+        "tasksWithoutTaskPage",
+        "uniqueTaskPages",
         "owners",
         "categories"
       ],
@@ -130,6 +134,18 @@
       },
       "additionalProperties": false
     },
+    "taskPageIndex": {
+      "description": "Provenance for the manually reviewed exact-task-page mappings.",
+      "type": "object",
+      "required": ["version", "reviewedAt", "sourceIndex", "interpretation"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "reviewedAt": { "type": "string", "minLength": 1 },
+        "sourceIndex": { "type": "string", "format": "uri" },
+        "interpretation": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
     "categories": {
       "type": "array",
       "items": { "$ref": "#/$defs/category" }
@@ -141,14 +157,106 @@
   },
   "additionalProperties": false,
   "$defs": {
+    "scoreMedians": {
+      "type": "object",
+      "required": [
+        "aiExecution",
+        "humanAccountability",
+        "automationExposure",
+        "readiness"
+      ],
+      "properties": {
+        "aiExecution": { "type": "number", "minimum": 0, "maximum": 100 },
+        "humanAccountability": { "type": "number", "minimum": 0, "maximum": 100 },
+        "automationExposure": { "type": "number", "minimum": 0, "maximum": 100 },
+        "readiness": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": false
+    },
+    "scoreDistribution": {
+      "type": "object",
+      "required": ["0-19", "20-39", "40-59", "60-79", "80-100"],
+      "properties": {
+        "0-19": { "type": "integer", "minimum": 0 },
+        "20-39": { "type": "integer", "minimum": 0 },
+        "40-59": { "type": "integer", "minimum": 0 },
+        "60-79": { "type": "integer", "minimum": 0 },
+        "80-100": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "scoreDistributions": {
+      "type": "object",
+      "required": [
+        "aiExecution",
+        "humanAccountability",
+        "automationExposure",
+        "readiness"
+      ],
+      "properties": {
+        "aiExecution": { "$ref": "#/$defs/scoreDistribution" },
+        "humanAccountability": { "$ref": "#/$defs/scoreDistribution" },
+        "automationExposure": { "$ref": "#/$defs/scoreDistribution" },
+        "readiness": { "$ref": "#/$defs/scoreDistribution" }
+      },
+      "additionalProperties": false
+    },
+    "evidenceCoverage": {
+      "type": "object",
+      "required": ["e0TaskCount", "e1ToE4TaskCount", "byLevel"],
+      "properties": {
+        "e0TaskCount": { "type": "integer", "minimum": 0 },
+        "e1ToE4TaskCount": { "type": "integer", "minimum": 0 },
+        "byLevel": {
+          "type": "object",
+          "required": ["E0", "E1", "E2", "E3", "E4"],
+          "properties": {
+            "E0": { "type": "integer", "minimum": 0 },
+            "E1": { "type": "integer", "minimum": 0 },
+            "E2": { "type": "integer", "minimum": 0 },
+            "E3": { "type": "integer", "minimum": 0 },
+            "E4": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "taskScoreRollup": {
+      "description": "Separate task-level medians, distributions, operating-mode counts, and evidence coverage. This is not a category replacement score.",
+      "type": "object",
+      "required": [
+        "unitOfAnalysis",
+        "taskCount",
+        "medians",
+        "distributions",
+        "modeCounts",
+        "evidenceCoverage",
+        "guardrail"
+      ],
+      "properties": {
+        "unitOfAnalysis": { "const": "task" },
+        "taskCount": { "type": "integer", "minimum": 0 },
+        "medians": { "$ref": "#/$defs/scoreMedians" },
+        "distributions": { "$ref": "#/$defs/scoreDistributions" },
+        "modeCounts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "evidenceCoverage": { "$ref": "#/$defs/evidenceCoverage" },
+        "guardrail": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
     "category": {
       "type": "object",
-      "required": ["id", "name", "description", "taskCount"],
+      "required": ["id", "name", "description", "taskCount", "taskScoreRollup"],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
         "name": { "type": "string", "minLength": 1 },
         "description": { "type": "string" },
-        "taskCount": { "type": "integer", "minimum": 0 }
+        "taskCount": { "type": "integer", "minimum": 0 },
+        "taskScoreRollup": { "$ref": "#/$defs/taskScoreRollup" }
       },
       "additionalProperties": false
     },
@@ -168,6 +276,7 @@
         "owner",
         "flag",
         "urls",
+        "taskPageMatch",
         "skill",
         "capability",
         "evidence"
@@ -187,11 +296,25 @@
         "flag": { "type": ["string", "null"] },
         "urls": {
           "type": "object",
-          "required": ["task", "definitiveArticle", "sourceArchive"],
+          "required": ["task", "taskPage", "definitiveArticle", "sourceArchive"],
           "properties": {
             "task": { "type": "string", "format": "uri-reference" },
+            "taskPage": { "type": ["string", "null"], "format": "uri" },
             "definitiveArticle": { "type": ["string", "null"], "format": "uri" },
             "sourceArchive": { "type": ["string", "null"], "format": "uri" }
+          },
+          "additionalProperties": false
+        },
+        "taskPageMatch": {
+          "description": "Manual match provenance for urls.taskPage, or null when no exact task page has been reviewed.",
+          "type": ["object", "null"],
+          "required": ["matchMethod", "canonicalTask"],
+          "properties": {
+            "matchMethod": { "type": "string", "minLength": 1 },
+            "canonicalTask": {
+              "type": ["string", "null"],
+              "pattern": "^[a-z0-9]+(?:-+[a-z0-9]+)*$"
+            }
           },
           "additionalProperties": false
         },
