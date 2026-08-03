@@ -1,13 +1,6 @@
 {
- "stats": {
-  "total": 239,
-  "complete": 116,
-  "needsWork": 100,
-  "gaps": 23,
-  "definitiveArticles": 22,
-  "categories": 13
- },
- "bundleUrl": "https://blitzmetrics.com/wp-content/uploads/2026/06/TaskLibrary-Skills-v3.zip",
  "metaArticleUrl": "https://blitzmetrics.com/how-we-turned-239-tasks-into-an-ai-runnable-skill-library/",
- "updated": "July 2026"
+ "updated": "August 2, 2026",
+ "capabilityAsOf": "August 2, 2026",
+ "capabilityMethodologyUrl": "https://blitzmetrics.com/content-factory-ai-capability-index/"
 }
