@@ -960,9 +960,10 @@
    "source": "local",
    "category": "Gaps & Tasks to Create"
   },
-  "how-to-process-videos-via-marketscale": {
-   "source": "local",
-   "category": "Gaps & Tasks to Create"
+    "how-to-process-videos-via-marketscale": {
+      "source": "local",
+      "category": "Gaps & Tasks to Create",
+      "flag": "Legacy duplicate documentation-gap record. Canonical execution task: process-videos-via-marketscale; retire after tracker migration."
   },
   "how-to-run-the-ai-business-audit": {
    "source": "local",
