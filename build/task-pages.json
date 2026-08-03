@@ -1,0 +1,165 @@
+{
+  "version": "1.0",
+  "reviewedAt": "2026-08-02",
+  "sourceIndex": "https://blitzmetrics.com/the-task-library/",
+  "interpretation": "An exact task page teaches the bounded task. It is separate from the broader definitive article and does not by itself establish capability evidence.",
+  "tasks": {
+    "audit-internal-links-between-all-blog-posts": {
+      "url": "https://blitzmetrics.com/internal-linking/",
+      "matchMethod": "manual-content-review"
+    },
+    "build-personal-brand-website": {
+      "url": "https://blitzmetrics.com/how-to-create-a-personal-brand-website-using-the-blitzmetrics-site-generator/",
+      "matchMethod": "manual-content-review"
+    },
+    "create-social-media-posts-per-platform": {
+      "url": "https://blitzmetrics.com/write-copy-crossposting/",
+      "matchMethod": "manual-content-review"
+    },
+    "create-a-3x3-video-grid": {
+      "url": "https://blitzmetrics.com/topic-wheel/",
+      "matchMethod": "manual-content-review"
+    },
+    "email-and-dm-client-about-published-article": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "how-to-process-videos-via-marketscale": {
+      "url": "https://blitzmetrics.com/how-to-process-videos-via-marketscale/",
+      "matchMethod": "legacy-alias",
+      "canonicalTask": "process-videos-via-marketscale"
+    },
+    "claim-and-verify-knowledge-panel-when-it-appears": {
+      "url": "https://blitzmetrics.com/claim-google-knowledge-panel-walkthrough/",
+      "matchMethod": "manual-content-review"
+    },
+    "identify-and-eliminate-orphan-standalone-articles": {
+      "url": "https://blitzmetrics.com/internal-linking/",
+      "matchMethod": "manual-content-review"
+    },
+    "link-leaves-to-branches-branches-to-trunk": {
+      "url": "https://blitzmetrics.com/internal-linking/",
+      "matchMethod": "manual-content-review"
+    },
+    "map-out-one-minute-video-topics-using-topic-wheel": {
+      "url": "https://blitzmetrics.com/topic-wheel/",
+      "matchMethod": "manual-content-review"
+    },
+    "post-to-facebook-page": {
+      "url": "https://blitzmetrics.com/how-to-crosspost-an-article-on-fb/",
+      "matchMethod": "manual-content-review"
+    },
+    "post-to-linkedin": {
+      "url": "https://blitzmetrics.com/how-to-cross-post-an-article-or-blog-post-article-on-a-linkedin-page/",
+      "matchMethod": "manual-content-review"
+    },
+    "process-videos-via-marketscale": {
+      "url": "https://blitzmetrics.com/how-to-process-videos-via-marketscale/",
+      "matchMethod": "manual-content-review"
+    },
+    "record-one-minute-videos": {
+      "url": "https://blitzmetrics.com/one-minute-video-guide/",
+      "matchMethod": "manual-content-review"
+    },
+    "record-one-minute-videos-answering-customer-questions": {
+      "url": "https://blitzmetrics.com/one-minute-video-guide/",
+      "matchMethod": "manual-content-review"
+    },
+    "repurpose-videos-into-blog-posts-via-content-factory": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "set-up-content-library": {
+      "url": "https://blitzmetrics.com/update-content-library/",
+      "matchMethod": "manual-content-review"
+    },
+    "share-in-44k-facebook-group": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-1-upload-video-to-google-drive-and-descript": {
+      "url": "https://blitzmetrics.com/upload-pillar-content-google-drive/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-10-embed-source-video": {
+      "url": "https://blitzmetrics.com/embed-video-content-webpage/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-11-proofread-with-grammarly-or-chatgpt": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-12-post-article-on-wordpress": {
+      "url": "https://blitzmetrics.com/post-article-wordpress/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-13-categorize-post-and-add-tags": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-14a-configure-rankmath-seo-plugin": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-17-final-formatting-and-qa-checks": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-2-transcribe-video-using-descript": {
+      "url": "https://blitzmetrics.com/transcribe-pillar-content-descript/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-3-watch-video-and-identify-gct": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-4-research-edit-add-timestamps-and-outline": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-5-write-article-from-transcript": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-6-write-title-and-headings": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-7-write-hook-and-establish-context": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-8-add-photos-and-featured-image": {
+      "url": "https://blitzmetrics.com/how-to-add-a-featured-image/",
+      "matchMethod": "manual-content-review"
+    },
+    "step-9-add-internal-links-with-proper-anchor-text": {
+      "url": "https://blitzmetrics.com/internal-linking/",
+      "matchMethod": "manual-content-review"
+    },
+    "upload-processed-video-to-youtube": {
+      "url": "https://blitzmetrics.com/how-to-publish-a-youtube-video-and-maximize-your-reach/",
+      "matchMethod": "manual-content-review"
+    },
+    "use-descript-underlord-to-remove-filler-words": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "use-for-content-planning-and-video-topics": {
+      "url": "https://blitzmetrics.com/topic-wheel/",
+      "matchMethod": "manual-content-review"
+    },
+    "use-proper-anchor-text-3-6-words-descriptive": {
+      "url": "https://blitzmetrics.com/internal-linking/",
+      "matchMethod": "manual-content-review"
+    },
+    "verify-all-items-on-blog-posting-checklist": {
+      "url": "https://blitzmetrics.com/blog-posting-guidelines/",
+      "matchMethod": "manual-content-review"
+    },
+    "write-meta-article-documenting-agent-work": {
+      "url": "https://blitzmetrics.com/meta-article-prompt/",
+      "matchMethod": "manual-content-review"
+    }
+  }
+}
