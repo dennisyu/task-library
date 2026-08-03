@@ -3,7 +3,7 @@ name: measure-search-impressions-traffic-inbound-opportunities
 description: Run the MAA loop on the personal brand — tracking search impressions, organic traffic, and inbound opportunities to prove the system compounds.
 category: Personal Branding
 stage: —
-definitive_article: /knowledge-panel
+definitive_article: /what-is-a-knowledge-panel
 status: needs-work
 ---
 
@@ -42,5 +42,5 @@ Its conclusions route work back into the earlier-phase skills (90% greatest hits
 See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
-- Hub: /knowledge-panel
+- Hub: /what-is-a-knowledge-panel
 - Related: /personal-brand · previous: claim-and-verify-knowledge-panel-when-it-appears · closes the loop back to: record-one-minute-videos-answering-customer-questions
