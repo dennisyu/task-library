@@ -42,6 +42,17 @@ FORM_REQUIREMENTS = {
     },
 }
 ALLOWED_TYPES = {"markdown", "input", "textarea", "dropdown", "checkboxes"}
+UPSTREAM_LABELS = {
+    "bug",
+    "documentation",
+    "duplicate",
+    "enhancement",
+    "good first issue",
+    "help wanted",
+    "invalid",
+    "question",
+    "wontfix",
+}
 
 
 def load_yaml(path):
@@ -76,6 +87,7 @@ class IssueFormTests(unittest.TestCase):
                 self.assertTrue(form.get("description"))
                 self.assertTrue(form.get("title"))
                 self.assertIsInstance(form.get("body"), list)
+                self.assertTrue(set(form.get("labels", [])).issubset(UPSTREAM_LABELS))
 
                 ids = []
                 for item in form["body"]:
