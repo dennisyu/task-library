@@ -216,7 +216,7 @@ if (DATA.metaArticleUrl){ metaBtn.href = DATA.metaArticleUrl; metaBtn.hidden = f
 el('#btl-updated').textContent = DATA.updated || '—';
 const heroSub = el('#btl-sub');
 if (heroSub){
-  heroSub.textContent = fmt(DATA.stats.total || 0) + ' task-level scores — AI execution, human accountability, automation exposure, and the full runnable skill behind each number.';
+  heroSub.textContent = fmt(DATA.stats.total || 0) + ' registered task records — task-level scores, evidence, visible gaps, and the runnable skill when available.';
 }
 const footMeta = el('#btl-foot-meta');
 if (DATA.metaArticleUrl){
@@ -491,7 +491,7 @@ function openModal(t, syncUrl){
     (t.download ? '<a class="btl-art" href="' + esc(t.download) + '" target="_blank" rel="noopener">Download full skill suite ⬇</a>' : '');
   mBody.innerHTML = capabilityCard(t) + renderMD(t.content || '*No skill.md captured yet — this task is a gap to close on the next run of the loop.*');
   if (syncUrl !== false && window.location.hash !== '#task=' + encodeURIComponent(t.slug || '')){
-    window.history.pushState(null, '', '#task=' + encodeURIComponent(t.slug || ''));
+    window.history.replaceState(null, '', '#task=' + encodeURIComponent(t.slug || ''));
   }
   prevOverflow = document.body.style.overflow;
   const embedded = window.self !== window.top;
