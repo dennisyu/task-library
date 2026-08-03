@@ -1,0 +1,139 @@
+name: Capability evidence trial proposal
+description: Preregister a bounded E1-E4 trial against one exact Task Library contract and skill revision.
+title: "[Evidence trial]: "
+labels:
+  - intake
+  - evidence-trial
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A proposal does not upgrade evidence. After execution, a new append-only record must pass the validator. Record negative, mixed, aborted, and failed results; do not include secrets or private customer data.
+
+  - type: input
+    id: task_slug
+    attributes:
+      label: Existing task slug
+      description: The exact permanent slug in the built Task Library.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target_level
+    attributes:
+      label: Proposed evidence design
+      description: Choose the design you will attempt. The validator, not this selection, determines the effective level.
+      options:
+        - E1 — evaluated demonstration
+        - E2 — preregistered repeated or held-out cases
+        - E3 — matched Human-only, AI-only, and Human+AI arms
+        - E4 — longitudinal production evidence
+    validations:
+      required: true
+
+  - type: textarea
+    id: owner_reviewer
+    attributes:
+      label: Owner, operator, evaluator, and reviewer
+      description: Name accountable people and roles. State evaluator independence/blinding and who can approve, stop, or reject the trial.
+      placeholder: |
+        Accountable owner:
+        Operator:
+        Evaluator:
+        Reviewer/stop authority:
+    validations:
+      required: true
+
+  - type: textarea
+    id: exact_source
+    attributes:
+      label: Frozen task contract and exact skill source
+      description: Give the canonical task URL, contract version, exact URI/path, immutable revision, and SHA-256 of the unmodified resolved skill source.
+      placeholder: |
+        Canonical URL:
+        Task contract version:
+        Skill URI/path:
+        Revision (commit SHA):
+        SHA-256:
+    validations:
+      required: true
+
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Bounded hypothesis and interpretation rule
+      description: State the task-level claim and what outcomes will mean supports-capability, mixed, or does-not-support-capability. Do not generalize to a job or sector.
+    validations:
+      required: true
+
+  - type: textarea
+    id: protocol_cases_arms
+    attributes:
+      label: Protocol, cases, and arms
+      description: Describe case selection, preregistration or holdout, assignment, Human-only/AI-only/Human+AI arms, attempt coverage, and evaluator blinding. Follow the current evidence policy.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance rubric
+      description: List weighted criteria, identify at least one critical criterion, state the threshold, and explain who judges each attempt.
+    validations:
+      required: true
+
+  - type: textarea
+    id: stack_access
+    attributes:
+      label: Tested stack, access, privacy, and reviewer gates
+      description: Version every model, tool, context snapshot, environment, and permission scope. Explain least privilege, data redaction, and approval gates. Never paste credentials.
+    validations:
+      required: true
+
+  - type: textarea
+    id: artifact_plan
+    attributes:
+      label: Artifact and audit-trail plan
+      description: Name input, output, judgment, and protocol artifacts; where redacted copies will live; and how each will receive a content digest.
+    validations:
+      required: true
+
+  - type: textarea
+    id: operational_capture
+    attributes:
+      label: Time, cost, supervision, errors, and outcomes
+      description: Explain how every attempt will capture preparation, operator, supervision and review time; interventions; errors; cost; incidents; and any required downstream outcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: stops_rollback
+    attributes:
+      label: Stop conditions, rollback, and escalation
+      description: Define safety stops, recovery steps, incident handling, who can halt the run, and how externally visible or production changes are reversed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: freshness
+    attributes:
+      label: Timing and freshness plan
+      description: Give the run window, review deadline, and material changes that force a retest, including source, model, tool, permissions, environment, context, rubric, and policy.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: evidence_checks
+    attributes:
+      label: Evidence-integrity checks
+      options:
+        - label: I understand this proposal remains E0 until a new record passes the validator; the requested design level may still report a negative or mixed result.
+          required: true
+        - label: I will retain failed, rejected, aborted, and unevaluated attempts and will not select only favorable cases.
+          required: true
+        - label: I made no unsupported autonomy, earnings, employment, client-result, payback, or job/sector replacement claim.
+          required: true
+        - label: I will use an append-only record and hashed, redacted artifacts without credentials or private customer data.
+          required: true
+        - label: The named reviewer has authority to stop the trial and approve any live, costly, destructive, or externally visible action.
+          required: true
