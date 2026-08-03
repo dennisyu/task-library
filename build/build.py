@@ -15,7 +15,7 @@ Usage:
   python3 build/build.py [--tracker-csv tracker.csv] [--out dashboard/data.json]
 Exit code 1 if any skill fails validation (build still writes valid skills).
 """
-import argparse, csv, json, os, re, sys, urllib.request
+import argparse, csv, hashlib, json, os, re, sys, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(ROOT, 'build')
@@ -23,7 +23,9 @@ CACHE = os.path.join(BUILD, '.cache')
 
 STAGES = {'Produce', 'Process', 'Post', 'Promote', '—', ''}
 STATUSES = {'complete', 'needs-work', 'gap'}
-SLUG = re.compile(r'^[a-z0-9]+(?:-[a-z0-9]+)*$')
+# Preserve two already-public legacy task IDs that contain a double hyphen.
+# New IDs should still use ordinary lowercase kebab-case.
+SLUG = re.compile(r'^[a-z0-9]+(?:-+[a-z0-9]+)*$')
 REQUIRED_FM = ['name', 'description', 'category', 'stage', 'definitive_article', 'status']
 REQUIRED_SECTIONS = ['## Inputs', '## Steps', '## Definition of done (QA checklist)',
                      '## Example(s)', '## Definitive article & links']
@@ -511,6 +513,10 @@ def main():
         text = resolve(slug, entry, errors, warnings)
         if text is None:
             continue
+        # Evidence records bind the exact resolved source text. Keep this
+        # digest separate from the presentation-normalized ``content`` field:
+        # stripping a terminal newline must not make valid evidence look stale.
+        source_sha256 = hashlib.sha256(text.encode('utf-8')).hexdigest()
         fm = validate(slug, entry, text, errors, warnings)
         if fm is None:
             continue
@@ -524,6 +530,7 @@ def main():
         task = {'title': fm['name'], 'slug': slug, 'status': status,
                 'stage': fm['stage'] or '—', 'article': art,
                 'desc': fm['description'], 'content': text.strip(),
+                'sourceSha256': source_sha256,
                 'sourceType': 'hub' if entry.get('source') == 'local' else 'spoke'}
         task['capability'] = score_capability(task, entry['category'])
         if entry.get('flag'):
@@ -553,6 +560,10 @@ def main():
     for slug, t in sheet_only.items():
         cat = t.pop('category')
         t['sourceType'] = 'tracker-gap'
+        # A tracker-only gap has no resolved skill source to hash. Keeping the
+        # absence explicit prevents the empty presentation string from being
+        # misrepresented as a tested skill revision.
+        t['sourceSha256'] = None
         t['capability'] = score_capability(t, cat)
         by_cat[cat].append(t)
     all_tasks = [t for ts in by_cat.values() for t in ts]
