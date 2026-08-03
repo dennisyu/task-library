@@ -3,7 +3,7 @@ name: claim-and-verify-knowledge-panel-when-it-appears
 description: Claim and verify the Google Knowledge Panel as soon as Google generates one, putting the person in control of their own entity card.
 category: Personal Branding
 stage: —
-definitive_article: /knowledge-panel
+definitive_article: /what-is-a-knowledge-panel
 status: needs-work
 ---
 
@@ -43,5 +43,5 @@ The claim is the milestone the whole Plumbing → Content → Authority → Know
 See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
-- Hub: /knowledge-panel
+- Hub: /what-is-a-knowledge-panel
 - Related: /personal-brand · previous: implement-technical-schema-markup · next: measure-search-impressions-traffic-inbound-opportunities
