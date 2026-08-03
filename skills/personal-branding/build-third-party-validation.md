@@ -3,7 +3,7 @@ name: build-third-party-validation
 description: Accumulate the independent proof — press, Wikipedia/Wikidata, podcasts, books — Google needs before it will trust the entity with a Knowledge Panel.
 category: Personal Branding
 stage: —
-definitive_article: /knowledge-panel
+definitive_article: /what-is-a-knowledge-panel
 status: needs-work
 ---
 
@@ -42,5 +42,5 @@ It surfaces the strongest proof to the brand site and the schema skill automatic
 See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
-- Hub: /knowledge-panel
+- Hub: /what-is-a-knowledge-panel
 - Related: /personal-brand · feeds from: get-mentioned-in-publications · get-featured-on-podcasts · next: implement-technical-schema-markup
