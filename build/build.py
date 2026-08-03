@@ -23,6 +23,7 @@ CACHE = os.path.join(BUILD, '.cache')
 
 STAGES = {'Produce', 'Process', 'Post', 'Promote', '—', ''}
 STATUSES = {'complete', 'needs-work', 'gap'}
+SLUG = re.compile(r'^[a-z0-9]+(?:-[a-z0-9]+)*$')
 REQUIRED_FM = ['name', 'description', 'category', 'stage', 'definitive_article', 'status']
 REQUIRED_SECTIONS = ['## Inputs', '## Steps', '## Definition of done (QA checklist)',
                      '## Example(s)', '## Definitive article & links']
@@ -447,6 +448,9 @@ def main():
     errors, warnings = [], []
     sheet_only = {}   # rows with no source anywhere: rendered as named gap cards
     for slug, row in list(overrides.items()):
+        if not SLUG.fullmatch(slug or ''):
+            errors.append(f'{slug or "(blank)"}: tracker Slug must be lowercase kebab-case')
+            continue
         src_cell = (row.get('Source Repo') or '').strip()
         if slug in registry and src_cell:
             # SHEET WINS: a repo link on an existing row re-points the skill
@@ -461,13 +465,17 @@ def main():
             continue
         if slug in registry:
             continue
+        stage_cell = (row.get('Stage') or '—').strip() or '—'
+        if stage_cell not in STAGES:
+            errors.append(f'{slug}: tracker Stage "{stage_cell}" is invalid')
+            continue
         if not src_cell:
             cat = (row.get('Category') or '').strip()
             if cat in valid_cats and slug:
                 sheet_only[slug] = {
                     'title': (row.get('Task Title') or slug).strip() or slug,
                     'slug': slug, 'status': 'gap',
-                    'stage': (row.get('Stage') or '—').strip() or '—',
+                    'stage': stage_cell,
                     'article': (row.get('Definitive Article URL') or '').strip() or None,
                     'desc': (row.get('Description') or '').strip(),
                     'content': '',
@@ -484,10 +492,15 @@ def main():
         if cat not in valid_cats:
             errors.append(f'{slug}: sheet Category "{cat}" is not one of the {len(valid_cats)} library categories')
             continue
+        tracker_status = (row.get('Status') or '').strip().lower()
+        status_map = {'ready': 'complete', 'complete': 'complete', 'wip': 'needs-work',
+                      'needs-work': 'needs-work', 'gap': 'gap'}
+        if tracker_status and tracker_status not in status_map:
+            errors.append(f'{slug}: tracker Status "{tracker_status}" is invalid')
+            continue
         entry = {'source': src, 'format': 'claude-skill', 'category': cat,
-                 'stage': (row.get('Stage') or '—').strip() or '—',
-                 'status': {'ready': 'complete', 'complete': 'complete', 'wip': 'needs-work', 'needs-work': 'needs-work', 'gap': 'gap'}.get(
-                     (row.get('Status') or '').strip().lower(), 'needs-work'),
+                 'stage': stage_cell,
+                 'status': status_map.get(tracker_status, 'needs-work'),
                  'flag': 'added via Asset Tracker sheet'}
         dl = (row.get('Download URL') or '').strip() or download_from_source(src)
         if dl:
