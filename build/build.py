@@ -15,7 +15,7 @@ Usage:
   python3 build/build.py [--tracker-csv tracker.csv] [--out dashboard/data.json]
 Exit code 1 if any skill fails validation (build still writes valid skills).
 """
-import argparse, csv, hashlib, json, os, re, sys, urllib.request
+import argparse, csv, hashlib, json, os, re, sys, urllib.parse, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.path.join(ROOT, 'build')
@@ -82,6 +82,14 @@ ACCESS_INPUT = re.compile(
 ACCESS_GUIDANCE = re.compile(
     r'\b(access|login|log in|admin|permission|role|credential|account|business manager|website url|'
     r'drive folder|tracker)\b', re.I)
+AGENT_OPERATION_CLAIM = re.compile(
+    r'\b(?:Claude\s+Fable\s+5|Fable\s+5|persistent\s+agent|'
+    r'memory\s+(?:keeps|tracks|carries|holds|logs|recalls|remembers|across)|'
+    r'runs?\s+automatically|fully\s+autonomous)\b', re.I)
+AGENT_CLAIM_NOTE = (
+    'Agent persistence, memory, or model-specific wording is unverified design '
+    'intent; treat it as E0 until a frozen stack and accepted trial support it.'
+)
 
 
 def clamp(n, low=0, high=100):
@@ -193,6 +201,9 @@ def score_capability(task, category):
 
     if access_required and not access_documented:
         readiness -= 10
+    if AGENT_OPERATION_CLAIM.search(content):
+        readiness -= 12
+        reasons.insert(0, 'Unverified agent persistence or memory claim in skill')
     readiness = clamp(readiness, 10, 100)
 
     automation_exposure = clamp(execution * (1 - 0.70 * accountability / 100), 3, 95)
@@ -333,11 +344,26 @@ def validate(slug, entry, text, errors, warnings):
 def article_url(v):
     if not v or v.lower().startswith('gap'):
         return None
-    if v.startswith('http'):
-        return v
     if v.startswith('/'):
-        return 'https://blitzmetrics.com' + v
-    return None
+        v = 'https://blitzmetrics.com' + v
+    if not v.startswith(('http://', 'https://')):
+        return None
+    parsed = urllib.parse.urlsplit(v)
+    host = (parsed.hostname or '').lower()
+    path = parsed.path or '/'
+    # BlitzMetrics canonicals use a trailing slash. Several non-slashed task
+    # links return a Cloudflare 403 to machine clients instead of redirecting,
+    # so publish the canonical URL rather than making every consumer discover it.
+    if (host in {'blitzmetrics.com', 'www.blitzmetrics.com'} and
+            not path.endswith('/') and '.' not in path.rsplit('/', 1)[-1]):
+        path += '/'
+    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, path,
+                                    parsed.query, parsed.fragment))
+
+
+def tracker_article_url(row):
+    """Apply the canonical article policy to every tracker ingestion path."""
+    return article_url((row.get('Definitive Article URL') or '').strip())
 
 
 def html_escape(s):
@@ -420,6 +446,10 @@ def write_zip(data, out_dir, fname, note, only_complete):
     path = os.path.join(out_dir, fname)
     with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as z:
         manifest = {'total': len(ready), 'note': note, 'tasks': []}
+        principles_path = os.path.join(ROOT, 'boil-the-ocean.md')
+        if os.path.exists(principles_path):
+            with open(principles_path, encoding='utf-8') as handle:
+                z.writestr('TaskLibrary-Skills/boil-the-ocean.md', handle.read())
         for c, t in ready:
             cf = folder_of(c['name'])
             z.writestr(f'TaskLibrary-Skills/skills/{cf}/{t["slug"]}.md', t['content'])
@@ -478,7 +508,7 @@ def main():
                     'title': (row.get('Task Title') or slug).strip() or slug,
                     'slug': slug, 'status': 'gap',
                     'stage': stage_cell,
-                    'article': (row.get('Definitive Article URL') or '').strip() or None,
+                    'article': tracker_article_url(row),
                     'desc': (row.get('Description') or '').strip(),
                     'content': '',
                     'flag': 'defined in sheet — not yet built',
@@ -526,15 +556,20 @@ def main():
             s = (ov.get('Status') or '').strip().lower()
             status = {'ready': 'complete', 'complete': 'complete', 'wip': 'needs-work', 'needs-work': 'needs-work', 'gap': 'gap'}.get(s, status)
             if (ov.get('Definitive Article URL') or '').strip():
-                art = ov['Definitive Article URL'].strip()   # sheet overrides only when filled; file frontmatter is the default
+                # Sheet overrides only when filled; normalize them through the
+                # same canonical URL policy as file frontmatter.
+                art = tracker_article_url(ov)
         task = {'title': fm['name'], 'slug': slug, 'status': status,
                 'stage': fm['stage'] or '—', 'article': art,
                 'desc': fm['description'], 'content': text.strip(),
                 'sourceSha256': source_sha256,
                 'sourceType': 'hub' if entry.get('source') == 'local' else 'spoke'}
         task['capability'] = score_capability(task, entry['category'])
+        if AGENT_OPERATION_CLAIM.search(text):
+            task['agentClaimUnverified'] = True
+            task['flag'] = AGENT_CLAIM_NOTE
         if entry.get('flag'):
-            task['flag'] = entry['flag']
+            task['flag'] = '; '.join(filter(None, (task.get('flag'), entry['flag'])))
         if entry.get('download'):
             task['download'] = entry['download']
         if ov and (ov.get('Owner') or '').strip():
@@ -586,6 +621,9 @@ def main():
                       'spokeSkills': sum(t.get('sourceType') == 'spoke' for t in all_tasks),
                       'trackerGaps': sum(t.get('sourceType') == 'tracker-gap' for t in all_tasks),
                       'definitiveArticles': len({t['article'] for t in all_tasks if t.get('article')}),
+                      'tasksWithArticle': sum(bool(t.get('article')) for t in all_tasks),
+                      'tasksWithoutArticle': sum(not bool(t.get('article')) for t in all_tasks),
+                      'agentClaimTasks': sum(bool(t.get('agentClaimUnverified')) for t in all_tasks),
                       'owners': len({t['owner'] for t in all_tasks if t.get('owner')}),
                       'categories': len(cats_meta)},
             'capabilityIndex': {
