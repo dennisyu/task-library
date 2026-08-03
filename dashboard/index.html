@@ -114,6 +114,24 @@
 #btl-app .btl-health-legend .d-ok{background:var(--green)}
 #btl-app .btl-health-legend .d-warn{background:var(--amber)}
 #btl-app .btl-health-legend .d-bad{background:var(--red)}
+/* ================= AI Capability Index ================= */
+#btl-app .btl-capability{padding-bottom:clamp(28px,4vw,46px)}
+#btl-app .btl-cap-shell{border:1px solid rgba(34,211,238,.24);border-radius:22px;padding:clamp(24px,3.5vw,38px);
+  background:linear-gradient(135deg,rgba(34,211,238,.08),rgba(79,140,255,.07) 45%,rgba(139,92,246,.08))}
+#btl-app .btl-cap-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+#btl-app .btl-cap-head h2{font-size:clamp(24px,3vw,36px);line-height:1.15;letter-spacing:-.02em}
+#btl-app .btl-cap-head p{margin-top:9px;color:var(--mut);max-width:760px}
+#btl-app .btl-cap-asof{font-family:var(--mono);font-size:11px;color:var(--dim);white-space:nowrap}
+#btl-app .btl-cap-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:24px}
+#btl-app .btl-cap-kpis>div{padding:18px;border:1px solid var(--line);border-radius:15px;background:rgba(7,11,22,.55)}
+#btl-app .btl-cap-kpis b{display:block;font-size:30px;line-height:1;color:var(--cyan);font-variant-numeric:tabular-nums}
+#btl-app .btl-cap-kpis span{display:block;margin-top:7px;font-size:12px;color:var(--mut)}
+#btl-app .btl-cap-explain{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+#btl-app .btl-cap-explain>div{padding:14px 16px;border-left:3px solid var(--blue);background:rgba(7,11,22,.36);border-radius:8px;font-size:12.5px;color:var(--mut)}
+#btl-app .btl-cap-explain strong{display:block;color:var(--ink);margin-bottom:3px}
+#btl-app .btl-cap-guardrail{margin-top:16px;padding:14px 17px;border:1px solid rgba(251,191,36,.25);border-radius:10px;background:rgba(251,191,36,.06);color:#d9cfae;font-size:13px}
+#btl-app .btl-cap-actions{margin-top:15px}
+#btl-app .btl-cap-actions a{color:#9ec1ff;font-size:13px;font-weight:650;border-bottom:1px solid rgba(158,193,255,.35)}
 /* ================= Recursive self-improvement (centerpiece) ================= */
 #btl-app .btl-loop{padding-bottom:clamp(28px,4vw,46px)}
 #btl-app .btl-loop-card{position:relative;overflow:hidden;border:1px solid rgba(139,92,246,.28);border-radius:24px;
@@ -246,6 +264,7 @@
 #btl-app .btl-row-main{flex:1;min-width:0}
 #btl-app .btl-row-top{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 #btl-app .btl-row-title{font-size:15px;font-weight:650;letter-spacing:-.005em}
+#btl-app .btl-row-title a:hover{color:#bcd0ff}
 #btl-app .btl-status{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;border-radius:999px;padding:3px 9px;white-space:nowrap}
 #btl-app .st-complete{color:var(--green);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3)}
 #btl-app .st-needs-work{color:var(--amber);background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3)}
@@ -254,6 +273,12 @@
   border:1px solid rgba(34,211,238,.28);border-radius:999px;padding:3px 9px;white-space:nowrap}
 #btl-app .btl-row-desc{margin-top:4px;font-size:13.5px;color:var(--mut);line-height:1.55}
 #btl-app .btl-row-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px}
+#btl-app .btl-cap{font-family:var(--mono);font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 9px;border:1px solid}
+#btl-app .cap-high{color:#6ee7b7;background:rgba(16,185,129,.1);border-color:rgba(52,211,153,.35)}
+#btl-app .cap-strong{color:#7dd3fc;background:rgba(14,165,233,.1);border-color:rgba(125,211,252,.35)}
+#btl-app .cap-assist{color:#fcd34d;background:rgba(245,158,11,.1);border-color:rgba(252,211,77,.35)}
+#btl-app .cap-limited{color:#fca5a5;background:rgba(239,68,68,.1);border-color:rgba(252,165,165,.35)}
+#btl-app .btl-mode{font-size:10.5px;font-weight:650;color:#c4b5fd;background:rgba(139,92,246,.09);border:1px solid rgba(196,181,253,.26);border-radius:999px;padding:3px 9px}
 #btl-app .btl-tag{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.08em;border-radius:5px;padding:2.5px 7px}
 #btl-app .tag-sop{color:#9ec1ff;background:rgba(79,140,255,.1);border:1px solid rgba(79,140,255,.3)}
 #btl-app .tag-qa{color:var(--green);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.28)}
@@ -293,6 +318,22 @@
 #btl-app .btl-m-body{overflow:auto;padding:22px 26px 30px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(148,163,255,.25) transparent}
 #btl-app .btl-m-body::-webkit-scrollbar{width:9px}
 #btl-app .btl-m-body::-webkit-scrollbar-thumb{background:rgba(148,163,255,.22);border-radius:99px}
+#btl-app .btl-link-copy{background:none;cursor:pointer}
+#btl-app .btl-cap-detail{padding:18px;border:1px solid rgba(34,211,238,.25);border-radius:15px;background:linear-gradient(135deg,rgba(34,211,238,.07),rgba(139,92,246,.07));margin-bottom:24px}
+#btl-app .btl-cap-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#btl-app .btl-cap-detail-head h4{margin-top:7px;font-size:19px;color:#fff}
+#btl-app .btl-cap-detail-head a{font-size:12.5px;color:#9ec1ff;border-bottom:1px solid rgba(158,193,255,.35)}
+#btl-app .btl-cap-guard{margin-top:12px;padding:11px 13px;border-radius:8px;background:rgba(251,191,36,.07);color:#d9cfae;font-size:12.5px}
+#btl-app .btl-cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}
+#btl-app .btl-cap-grid>div{padding:13px 10px;border:1px solid var(--line);border-radius:10px;background:rgba(7,11,22,.5);text-align:center}
+#btl-app .btl-cap-grid b{display:block;font-size:25px;line-height:1;color:#dfe5f5;font-variant-numeric:tabular-nums}
+#btl-app .btl-cap-grid span{display:block;margin-top:6px;font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+#btl-app .btl-cap-grid .exp-high{color:#fca5a5}
+#btl-app .btl-cap-grid .exp-medium{color:#fcd34d}
+#btl-app .btl-cap-grid .exp-low{color:#6ee7b7}
+#btl-app .btl-cap-notes{display:flex;gap:10px;flex-wrap:wrap;margin-top:11px;font-size:11.5px;color:var(--mut)}
+#btl-app .btl-cap-notes span{padding:4px 8px;border:1px solid var(--line);border-radius:999px}
+#btl-app .btl-cap-detail ul{margin-top:12px;padding-left:18px;display:grid;gap:4px;color:var(--mut);font-size:12.5px;list-style:disc}
 
 /* ================= Markdown ================= */
 #btl-app .btl-md{font-size:14.5px;line-height:1.68;color:#cdd6ee}
@@ -363,6 +404,8 @@
 @media (max-width:640px){
   #btl-app{border-radius:18px}
   #btl-app .btl-statgrid{grid-template-columns:repeat(2,1fr);gap:10px}
+  #btl-app .btl-cap-kpis,#btl-app .btl-cap-explain{grid-template-columns:1fr}
+  #btl-app .btl-cap-grid{grid-template-columns:repeat(2,1fr)}
   #btl-app .btl-cat-desc{white-space:normal}
   #btl-app .btl-cat-count{display:none}
   #btl-app .btl-row{flex-wrap:wrap;padding:14px 16px}
@@ -392,9 +435,9 @@
 
   <!-- ============ 1. HERO ============ -->
   <header class="btl-hero btl-wrap">
-    <div class="btl-eyebrow"><span class="pulse"></span>Local Service Spotlight Content Factory</div>
-    <h1 class="btl-title">Local Service Spotlight <span>Task Library</span></h1>
-    <p class="btl-sub">239 SOPs — every task documented to the definitive-article standard, so humans and AI agents run them the same way.</p>
+    <div class="btl-eyebrow"><span class="pulse"></span>BlitzMetrics Task Library</div>
+    <h1 class="btl-title">Task Library <span>AI Capability Index</span></h1>
+    <p class="btl-sub" id="btl-sub">Every registered task scored with the runnable skill behind the number.</p>
     <div class="btl-cta">
       <a id="btl-dl" class="btl-btn btl-btn-primary" href="#">⬇ Download prepared skills (.zip)</a>
       <a id="btl-meta" class="btl-btn btl-btn-ghost" href="#" target="_blank" rel="noopener" hidden>How we built this →</a>
@@ -412,7 +455,29 @@
     </div>
   </section>
 
-  <!-- ============ 3. RECURSIVE SELF-IMPROVEMENT ============ -->
+  <!-- ============ 3. AI CAPABILITY INDEX ============ -->
+  <section class="btl-wrap btl-capability" id="btl-capability" aria-labelledby="btl-cap-h">
+    <div class="btl-cap-shell">
+      <div class="btl-cap-head">
+        <div><h2 id="btl-cap-h">Measure the task, not an imaginary AI IQ</h2><p>The baseline separates what an AI worker can execute from what a person must still own. Open any task to see the complete skill, access flag, rationale, and all four scores.</p></div>
+        <span class="btl-cap-asof" id="btl-cap-asof">—</span>
+      </div>
+      <div class="btl-cap-kpis">
+        <div><b id="btl-cap-ai">0</b><span>Median AI execution / 100</span></div>
+        <div><b id="btl-cap-exposure">0</b><span>Median automation exposure / 100</span></div>
+        <div><b id="btl-cap-high">0</b><span>Tasks with high execution potential</span></div>
+      </div>
+      <div class="btl-cap-explain">
+        <div><strong>AI execution</strong>Can the current stack perform the bounded work?</div>
+        <div><strong>Human accountability</strong>Must a person own consent, trust, spend, judgment, or physical action?</div>
+        <div><strong>Automation exposure</strong>How much operational pressure remains after human accountability is kept visible?</div>
+      </div>
+      <p class="btl-cap-guardrail"><strong>Important:</strong> these are E0 triage estimates, not measured replacement probabilities. A task can be highly AI-capable and still require a named human owner. Scores graduate only after held-out runs, human baselines, and production evidence.</p>
+      <p class="btl-cap-actions"><a id="btl-cap-method" href="#" target="_blank" rel="noopener" hidden>Read the methodology, evidence ladder, and limitations ↗</a></p>
+    </div>
+  </section>
+
+  <!-- ============ 4. RECURSIVE SELF-IMPROVEMENT ============ -->
   <section class="btl-wrap btl-loop" aria-labelledby="btl-loop-h">
     <div class="btl-loop-card">
       <div class="btl-loop-head">
@@ -464,14 +529,14 @@
         </div>
         <div class="btl-loop-text">
           <div class="btl-manifesto">
-            <p><strong>Every task we perform is captured as a skill.md</strong> — a step-by-step SOP with a QA gate (the Definition of Done) and a worked example (the meta-article). The next person to run the task, human or AI agent, starts from the best documented run instead of from scratch.</p>
-            <p>Each pass through the loop sharpens the procedure, tightens the checklist, and adds proof. <strong>Nothing is ever done twice from zero. The system compounds.</strong></p>
+            <p><strong>Every completed task should resolve to a skill.md</strong> — a step-by-step SOP with a QA gate (the Definition of Done) and evidence from real runs. Missing skills, hubs, access instructions, and examples remain visible instead of being counted as proof.</p>
+            <p>Each verified pass through the loop can sharpen the procedure, tighten the checklist, and add evidence. <strong>The loop compounds only when failures and corrections flow back into the source.</strong></p>
           </div>
           <ul class="btl-creed">
-            <li><span class="ck">✓</span><span><b>One standard, zero drift</b> — all 239 skills follow the same definitive-article template, section for section.</span></li>
-            <li><span class="ck">✓</span><span><b>QA gate on every task</b> — a Definition of Done that a stranger (or an agent) can verify without asking.</span></li>
-            <li><span class="ck">✓</span><span><b>Example slot in every SOP</b> — each skill links the meta-article that proves the process works.</span></li>
-            <li><span class="ck">✓</span><span><b>Self-updating</b> — every run ends by improving the very document it ran from.</span></li>
+            <li><span class="ck">✓</span><span><b>One enforced schema</b> — the build rejects missing frontmatter, sections, slugs, and invalid statuses.</span></li>
+            <li><span class="ck">✓</span><span><b>QA gate in every runnable skill</b> — a Definition of Done a stranger or agent can check.</span></li>
+            <li><span class="ck">✓</span><span><b>Evidence is separate from examples</b> — a public demo is E1 at best; held-out and production runs earn higher evidence levels.</span></li>
+            <li><span class="ck">✓</span><span><b>Corrections become regressions</b> — failures enter a test set before the skill changes, then old and new cases rerun.</span></li>
           </ul>
           <div class="btl-prov">
             <div class="btl-prov-head"><span>🧾</span><span>Build provenance / changelog</span></div>
@@ -487,7 +552,7 @@
     </div>
   </section>
 
-  <!-- ============ 4. CONTROLS ============ -->
+  <!-- ============ 5. CONTROLS ============ -->
   <div class="btl-controls" id="btl-controls">
     <div class="btl-wrap btl-controls-in">
       <label class="btl-search">
@@ -504,16 +569,16 @@
     <div class="btl-wrap"><div class="btl-resline" id="btl-resline" role="status" aria-live="polite"></div></div>
   </div>
 
-  <!-- ============ 5. CATEGORIES ============ -->
+  <!-- ============ 6. CATEGORIES ============ -->
   <main class="btl-wrap btl-cats" id="btl-cats"></main>
   <div class="btl-wrap"><div class="btl-empty" id="btl-empty" hidden>
     <div class="ee">🔍</div>
     <h3>No tasks match</h3>
-    <p>Nothing in 239 SOPs matches that combination of search and status filter.</p>
+    <p>Nothing in the current library matches that combination of search and status filter.</p>
     <button id="btl-reset" class="btl-mini" type="button">Reset search &amp; filters</button>
   </div></div>
 
-  <!-- ============ 6. FOOTER ============ -->
+  <!-- ============ 7. FOOTER ============ -->
   <footer class="btl-foot">
     <div class="btl-foot-line"></div>
     <p class="btl-foot-main">Documented with the <strong>Local Service Spotlight Content Factory</strong> · recursive self-improvement</p>
