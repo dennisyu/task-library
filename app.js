@@ -18,10 +18,23 @@ function debounce(fn, ms){ let t; return function(){ clearTimeout(t); const a = 
 const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const STATUS = {
-  'complete':   { label: 'Ready' },
-  'needs-work': { label: 'WIP' },
-  'gap':        { label: 'Unclaimed' }
+  'complete':   { label: 'Complete' },
+  'needs-work': { label: 'Needs work' },
+  'gap':        { label: 'Gap' }
 };
+
+function scoreBand(n){ return n >= 80 ? 'high' : (n >= 60 ? 'strong' : (n >= 40 ? 'assist' : 'limited')); }
+function exposureBand(n){ return n >= 65 ? 'high' : (n >= 35 ? 'medium' : 'low'); }
+function taskUrl(t){
+  const base = window.location.origin + window.location.pathname.replace(/index\.html$/, '');
+  return base + '#task=' + encodeURIComponent(t.slug || t.title || '');
+}
+function capSummary(t){
+  const c = t.capability || {};
+  if (typeof c.aiExecution !== 'number') return '';
+  return '<span class="btl-cap cap-' + scoreBand(c.aiExecution) + '" title="AI execution potential: ' + c.aiExecution + '/100">AI ' + c.aiExecution + '</span>' +
+    '<span class="btl-mode">' + esc(c.mode || 'Not scored') + '</span>';
+}
 
 /* ============================================================
    Markdown renderer — purpose-built for skill.md files:
@@ -169,7 +182,7 @@ if (!DATA || !DATA.categories || !DATA.categories.length){
 /* ============================================================
    Enrich data once: ids, lowercase haystacks, provenance flags
    ============================================================ */
-const byId = {};
+const byId = {}, bySlug = {};
 DATA.categories.forEach(function(c, ci){
   c._ci = ci;
   c.tasks.forEach(function(t, ti){
@@ -181,6 +194,7 @@ DATA.categories.forEach(function(c, ci){
     t._ex = /^##\s+example/im.test(content) || /meta-article/i.test(content);
     t._vis = true;
     byId[t._id] = t;
+    bySlug[t.slug] = t;
   });
 });
 
@@ -188,10 +202,22 @@ DATA.categories.forEach(function(c, ci){
    Hero, footer, stats, health bar
    ============================================================ */
 const dl = el('#btl-dl');
-if (DATA.bundleUrl){ dl.href = DATA.bundleUrl; dl.textContent = '⬇ Download ' + (DATA.stats.complete || 0) + ' prepared skills (.zip)'; } else { dl.hidden = true; }
+if (DATA.bundleUrl){
+  dl.href = DATA.bundleUrl;
+  dl.textContent = '⬇ Download all ' + (DATA.stats.total || 0) + ' skills (.zip)';
+  var readyLink = document.createElement('a');
+  readyLink.href = 'TaskLibrary-Skills-ready.zip';
+  readyLink.className = 'btl-btn';
+  readyLink.textContent = 'Owner-signed only (' + (DATA.stats.complete || 0) + ') ⬇';
+  dl.parentNode.insertBefore(readyLink, dl.nextSibling);
+} else { dl.hidden = true; }
 const metaBtn = el('#btl-meta');
 if (DATA.metaArticleUrl){ metaBtn.href = DATA.metaArticleUrl; metaBtn.hidden = false; }
 el('#btl-updated').textContent = DATA.updated || '—';
+const heroSub = el('#btl-sub');
+if (heroSub){
+  heroSub.textContent = fmt(DATA.stats.total || 0) + ' task-level scores — AI execution, human accountability, automation exposure, and the full runnable skill behind each number.';
+}
 const footMeta = el('#btl-foot-meta');
 if (DATA.metaArticleUrl){
   footMeta.href = DATA.metaArticleUrl;
@@ -212,9 +238,9 @@ function countUp(node, val){
 }
 const cards = [
   { k:'total',              label:'Total tasks',         cls:'c-total', icon:'🗂️' },
-  { k:'complete',           label:'Ready',               cls:'c-ok',    icon:'✅', chip:'complete' },
-  { k:'needsWork',          label:'WIP',                 cls:'c-warn',  icon:'🛠️', chip:'needs-work' },
-  { k:'gaps',               label:'Unclaimed',           cls:'c-bad',   icon:'⛳', chip:'gap' },
+  { k:'complete',           label:'Complete',            cls:'c-ok',    icon:'✅', chip:'complete' },
+  { k:'needsWork',          label:'Needs work',          cls:'c-warn',  icon:'🛠️', chip:'needs-work' },
+  { k:'gaps',               label:'Gaps',                cls:'c-bad',   icon:'⛳', chip:'gap' },
   { k:'owners',             label:'Owners',              cls:'c-art',   icon:'👤' },
   { k:'categories',         label:'Categories',          cls:'c-cat',   icon:'🧭' }
 ];
@@ -245,14 +271,26 @@ cards.forEach(function(c){ countUp(el('[data-stat="' + c.k + '"]'), S[c.k] || 0)
     '<span><span class="d d-bad"></span><b>' + fmt(bad) + '</b> gaps</span>';
 })();
 
+(function capabilitySummary(){
+  const C = DATA.capabilityIndex || {};
+  const host = el('#btl-capability');
+  if (!host) return;
+  el('#btl-cap-ai').textContent = fmt(C.medianAIExecution || 0);
+  el('#btl-cap-exposure').textContent = fmt(C.medianAutomationExposure || 0);
+  el('#btl-cap-high').textContent = fmt(C.highExecutionTasks || 0);
+  el('#btl-cap-asof').textContent = (C.asOf || DATA.updated || '—') + ' · rubric v' + (C.version || '—');
+  const method = el('#btl-cap-method');
+  if (method && C.methodologyUrl){ method.href = C.methodologyUrl; method.hidden = false; }
+})();
+
 /* ============================================================
    Status chips
    ============================================================ */
 const CHIPS = [
   { key:'all',        label:'All',        cls:'' },
-  { key:'complete',   label:'Ready',      cls:'ch-ok' },
-  { key:'needs-work', label:'WIP',        cls:'ch-warn' },
-  { key:'gap',        label:'Unclaimed',  cls:'ch-bad' }
+  { key:'complete',   label:'Complete',   cls:'ch-ok' },
+  { key:'needs-work', label:'Needs work', cls:'ch-warn' },
+  { key:'gap',        label:'Gaps',       cls:'ch-bad' }
 ];
 el('#btl-chips').innerHTML = CHIPS.map(function(c){
   return '<button type="button" class="btl-chip ' + c.cls + '" data-chip="' + c.key + '" aria-pressed="' + (c.key === 'all') + '">' +
@@ -273,13 +311,13 @@ function rowHTML(t){
   return '<article class="btl-row" data-id="' + t._id + '">' +
     '<span class="btl-dot dot-' + esc(t.status) + '" aria-hidden="true"></span>' +
     '<div class="btl-row-main">' +
-      '<div class="btl-row-top"><h4 class="btl-row-title">' + esc(t.title) + '</h4>' +
+      '<div class="btl-row-top"><h4 class="btl-row-title"><a href="' + esc(taskUrl(t)) + '" data-view="' + t._id + '">' + esc(t.title) + '</a></h4>' +
         '<span class="btl-status st-' + esc(t.status) + '">' + st.label + '</span>' + stage + '</div>' +
       (t.desc ? '<p class="btl-row-desc">' + esc(t.desc) + '</p>' : '') +
-      '<div class="btl-row-meta">' + badges + art + '</div>' +
+      '<div class="btl-row-meta">' + capSummary(t) + badges + art + '</div>' +
     '</div>' +
     '<div class="btl-row-actions">' +
-      '<button type="button" class="btl-mini btl-view" data-view="' + t._id + '">View skill</button>' +
+      '<button type="button" class="btl-mini btl-view" data-view="' + t._id + '">Open task</button>' +
       '<button type="button" class="btl-mini" data-copy="' + t._id + '">Copy</button>' +
     '</div></article>';
 }
@@ -417,19 +455,44 @@ const modal = el('#btl-modal'), mPanel = root.querySelector('.btl-m-panel'),
       mCopy = el('#btl-m-copy'), mClose = root.querySelector('.btl-m-close');
 let modalTask = null, lastFocus = null, prevOverflow = '';
 
-function openModal(t){
+function capabilityCard(t){
+  const c = t.capability || {};
+  if (typeof c.aiExecution !== 'number') return '';
+  const reasons = (c.reasons || []).map(function(r){ return '<li>' + esc(r) + '</li>'; }).join('');
+  const method = DATA.capabilityIndex && DATA.capabilityIndex.methodologyUrl
+    ? '<a href="' + esc(DATA.capabilityIndex.methodologyUrl) + '" target="_blank" rel="noopener">Read the rubric ↗</a>' : '';
+  return '<section class="btl-cap-detail" aria-label="AI capability scorecard">' +
+    '<div class="btl-cap-detail-head"><div><span class="btl-overline">AI Capability Index v' + esc(c.version || '—') + '</span>' +
+      '<h4>' + esc(c.mode || 'Not scored') + '</h4></div>' + method + '</div>' +
+    '<p class="btl-cap-guard"><strong>Task score, not job-loss prediction.</strong> Capability, accountability, deployment readiness, and observed labor outcomes are different things.</p>' +
+    '<div class="btl-cap-grid">' +
+      '<div><b class="cap-' + scoreBand(c.aiExecution) + '">' + c.aiExecution + '</b><span>AI execution</span></div>' +
+      '<div><b>' + c.humanAccountability + '</b><span>Human accountability</span></div>' +
+      '<div><b class="exp-' + exposureBand(c.automationExposure) + '">' + c.automationExposure + '</b><span>Automation exposure</span></div>' +
+      '<div><b>' + c.readiness + '</b><span>Deployment readiness</span></div>' +
+    '</div>' +
+    '<div class="btl-cap-notes"><span>Evidence: <strong>' + esc(c.evidenceLevel || 'E0') + '</strong></span><span>Confidence: <strong>' + esc(c.confidence || '—') + '</strong></span><span>Access: <strong>' + esc(c.access || '—') + '</strong></span></div>' +
+    (reasons ? '<ul>' + reasons + '</ul>' : '') +
+  '</section>';
+}
+
+function openModal(t, syncUrl){
   if (!t) return;
   modalTask = t;
   lastFocus = document.activeElement;
   const st = STATUS[t.status] || STATUS.gap;
-  mMeta.innerHTML = '<span class="btl-status st-' + esc(t.status) + '">' + st.label + '</span>' +
+  mMeta.innerHTML = capSummary(t) + '<span class="btl-status st-' + esc(t.status) + '">' + st.label + '</span>' +
     '<span class="btl-m-cat">' + esc((t._cat.icon ? t._cat.icon + ' ' : '') + t._cat.name) + '</span>' +
     ((t.stage && t.stage !== '—') ? '<span class="btl-stage">' + esc(t.stage) + '</span>' : '');
   mTitle.textContent = t.title;
   mSub.innerHTML = '<code class="btl-slug">' + esc(t.slug || 'skill') + '.skill.md</code>' +
+    '<button type="button" class="btl-art btl-link-copy" data-copy-link>Copy task link</button>' +
     (t.article ? '<a class="btl-art" href="' + esc(t.article) + '" target="_blank" rel="noopener">Definitive article ↗</a>' : '') +
     (t.download ? '<a class="btl-art" href="' + esc(t.download) + '" target="_blank" rel="noopener">Download full skill suite ⬇</a>' : '');
-  mBody.innerHTML = renderMD(t.content || '*No skill.md captured yet — this task is a gap to close on the next run of the loop.*');
+  mBody.innerHTML = capabilityCard(t) + renderMD(t.content || '*No skill.md captured yet — this task is a gap to close on the next run of the loop.*');
+  if (syncUrl !== false && window.location.hash !== '#task=' + encodeURIComponent(t.slug || '')){
+    window.history.pushState(null, '', '#task=' + encodeURIComponent(t.slug || ''));
+  }
   prevOverflow = document.body.style.overflow;
   const embedded = window.self !== window.top;
   if (embedded){
@@ -453,7 +516,7 @@ function openModal(t){
   mBody.scrollTop = 0;
   mClose.focus();
 }
-function closeModal(){
+function closeModal(clearHash){
   if (modal.hidden) return;
   modal.hidden = true;
   modal.style.position = ''; modal.style.height = ''; modal.style.alignItems = '';
@@ -461,6 +524,9 @@ function closeModal(){
   if (panel){ panel.style.marginTop = ''; panel.style.maxHeight = ''; }
   modalTask = null;
   document.body.style.overflow = prevOverflow;
+  if (clearHash !== false && /^#task=/.test(window.location.hash)){
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
   if (lastFocus && lastFocus.focus) lastFocus.focus();
 }
 function trapFocus(e){
@@ -477,7 +543,7 @@ function trapFocus(e){
    ============================================================ */
 root.addEventListener('click', function(e){
   const view = e.target.closest('[data-view]');
-  if (view){ openModal(byId[view.getAttribute('data-view')]); return; }
+  if (view){ e.preventDefault(); openModal(byId[view.getAttribute('data-view')]); return; }
 
   const cp = e.target.closest('[data-copy]');
   if (cp){
@@ -528,6 +594,10 @@ root.addEventListener('click', function(e){
     if (modalTask) copyText(modalTask.content || '', 'Copied “' + trunc(modalTask.title, 44) + '” skill.md');
     return;
   }
+  if (e.target.closest('[data-copy-link]')){
+    if (modalTask) copyText(taskUrl(modalTask), 'Copied task link');
+    return;
+  }
   if (e.target.closest('[data-close]')){ closeModal(); return; }
 });
 
@@ -548,8 +618,26 @@ document.addEventListener('keydown', function(e){
   else if (e.key === 'Tab'){ trapFocus(e); }
 });
 
+function taskFromHash(){
+  const m = window.location.hash.match(/^#task=(.+)$/);
+  if (!m) return null;
+  try { return bySlug[decodeURIComponent(m[1])] || null; } catch(e) { return null; }
+}
+function syncHash(){
+  const t = taskFromHash();
+  if (t && (!modalTask || modalTask.slug !== t.slug)){
+    state.open.add(t._cat._ci);
+    setOpen(t._cat._ci, true);
+    openModal(t, false);
+  } else if (!t && modalTask){
+    closeModal(false);
+  }
+}
+window.addEventListener('hashchange', syncHash);
+
 /* ============================================================
    Go
    ============================================================ */
 applyFilters();
+syncHash();
 })();
