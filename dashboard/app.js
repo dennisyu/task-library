@@ -25,6 +25,57 @@ const STATUS = {
 
 function scoreBand(n){ return n >= 80 ? 'high' : (n >= 60 ? 'strong' : (n >= 40 ? 'assist' : 'limited')); }
 function exposureBand(n){ return n >= 65 ? 'high' : (n >= 35 ? 'medium' : 'low'); }
+const ROLLUP_SCORE_FIELDS = ['aiExecution', 'humanAccountability', 'automationExposure', 'readiness'];
+const ROLLUP_SCORE_LABELS = {
+  aiExecution: 'AI execution',
+  humanAccountability: 'Human accountability',
+  automationExposure: 'Automation exposure',
+  readiness: 'Deployment readiness'
+};
+const ROLLUP_BANDS = ['0-19', '20-39', '40-59', '60-79', '80-100'];
+const EVIDENCE_LEVELS = ['E0', 'E1', 'E2', 'E3', 'E4'];
+function rollupBand(n){ return ROLLUP_BANDS[Math.min(Math.floor(n / 20), ROLLUP_BANDS.length - 1)]; }
+function median(values){
+  const ordered = values.slice().sort(function(a, b){ return a - b; });
+  if (!ordered.length) return 0;
+  const middle = Math.floor(ordered.length / 2);
+  return ordered.length % 2 ? ordered[middle] : (ordered[middle - 1] + ordered[middle]) / 2;
+}
+function categoryTaskScoreRollup(tasks){
+  const scores = {}, distributions = {}, evidenceByLevel = {}, modeCounts = {};
+  ROLLUP_SCORE_FIELDS.forEach(function(field){
+    scores[field] = [];
+    distributions[field] = {};
+    ROLLUP_BANDS.forEach(function(band){ distributions[field][band] = 0; });
+  });
+  EVIDENCE_LEVELS.forEach(function(level){ evidenceByLevel[level] = 0; });
+  tasks.forEach(function(t){
+    const capability = t.capability || {};
+    ROLLUP_SCORE_FIELDS.forEach(function(field){
+      const value = capability[field];
+      if (typeof value !== 'number') return;
+      scores[field].push(value);
+      distributions[field][rollupBand(value)]++;
+    });
+    const mode = capability.mode || 'Not scored';
+    modeCounts[mode] = (modeCounts[mode] || 0) + 1;
+    const evidence = t.evidence || {};
+    const level = evidence.effectiveEvidenceLevel || capability.evidenceLevel || 'E0';
+    evidenceByLevel[level] = (evidenceByLevel[level] || 0) + 1;
+  });
+  const e0 = evidenceByLevel.E0 || 0;
+  const medians = {};
+  ROLLUP_SCORE_FIELDS.forEach(function(field){ medians[field] = median(scores[field]); });
+  return {
+    unitOfAnalysis: 'task',
+    taskCount: tasks.length,
+    medians: medians,
+    distributions: distributions,
+    modeCounts: modeCounts,
+    evidenceCoverage: { e0TaskCount: e0, e1ToE4TaskCount: tasks.length - e0, byLevel: evidenceByLevel },
+    guardrail: 'Descriptive distribution of task-level scores; not a job-replacement score or a forecast of employment outcomes.'
+  };
+}
 function taskUrl(t){
   const base = window.location.origin + window.location.pathname.replace(/index\.html$/, '');
   return base + '#task=' + encodeURIComponent(t.slug || t.title || '');
@@ -196,6 +247,9 @@ DATA.categories.forEach(function(c, ci){
     byId[t._id] = t;
     bySlug[t.slug] = t;
   });
+  // Recompute after the evidence overlay is attached so E0/E1-E4 coverage
+  // cannot drift from the task records rendered immediately below it.
+  c._taskScoreRollup = categoryTaskScoreRollup(c.tasks);
 });
 
 /* ============================================================
@@ -269,9 +323,12 @@ cards.forEach(function(c){ countUp(el('[data-stat="' + c.k + '"]'), S[c.k] || 0)
     '<span><span class="d d-ok"></span><b>' + fmt(ok) + '</b> complete</span>' +
     '<span><span class="d d-warn"></span><b>' + fmt(warn) + '</b> needs work</span>' +
     '<span><span class="d d-bad"></span><b>' + fmt(bad) + '</b> gaps</span>' +
-    '<span><b>' + fmt(S.tasksWithArticle || 0) + '</b> article-linked</span>' +
-    '<span><b>' + fmt(S.tasksWithoutArticle || 0) + '</b> need a hub</span>' +
-    '<span><b>' + fmt(S.definitiveArticles || 0) + '</b> unique hubs</span>';
+    '<span><b>' + fmt(S.tasksWithTaskPage || 0) + '</b> exact task SOP links</span>' +
+    '<span><b>' + fmt(S.tasksWithoutTaskPage || 0) + '</b> need an exact task page</span>' +
+    '<span><b>' + fmt(S.uniqueTaskPages || 0) + '</b> unique task pages</span>' +
+    '<span><b>' + fmt(S.tasksWithArticle || 0) + '</b> broader-hub linked</span>' +
+    '<span><b>' + fmt(S.tasksWithoutArticle || 0) + '</b> need a broader hub</span>' +
+    '<span><b>' + fmt(S.definitiveArticles || 0) + '</b> unique broader hubs</span>';
 })();
 
 (function capabilitySummary(){
@@ -313,7 +370,8 @@ function rowHTML(t){
   if (t._qa) badges += '<span class="btl-tag tag-qa" title="Has a Definition of Done QA gate">QA</span>';
   if (t._ex) badges += '<span class="btl-tag tag-ex" title="Has a worked example / meta-article slot">Example</span>';
   const stage = (t.stage && t.stage !== '—') ? '<span class="btl-stage">' + esc(t.stage) + '</span>' : '';
-  const art = (t.article ? '<a class="btl-art" href="' + esc(t.article) + '" target="_blank" rel="noopener">Definitive article ↗</a>' : '') +
+  const art = (t.taskPage ? '<a class="btl-art" href="' + esc(t.taskPage) + '" target="_blank" rel="noopener">Exact task SOP ↗</a>' : '') +
+    (t.article ? '<a class="btl-art" href="' + esc(t.article) + '" target="_blank" rel="noopener">Broader definitive hub ↗</a>' : '') +
     (t.download ? '<a class="btl-art" href="' + esc(t.download) + '" target="_blank" rel="noopener">Download full skill suite ⬇</a>' : '');
   return '<article class="btl-row" data-id="' + t._id + '">' +
     '<span class="btl-dot dot-' + esc(t.status) + '" aria-hidden="true"></span>' +
@@ -328,6 +386,31 @@ function rowHTML(t){
       '<button type="button" class="btl-mini" data-copy="' + t._id + '">Copy</button>' +
     '</div></article>';
 }
+function categoryRollupHTML(c){
+  const rollup = c._taskScoreRollup;
+  const evidence = rollup.evidenceCoverage;
+  const levels = EVIDENCE_LEVELS.map(function(level){
+    return '<span><b>' + level + '</b> ' + fmt(evidence.byLevel[level] || 0) + '</span>';
+  }).join('');
+  const modes = Object.keys(rollup.modeCounts).sort().map(function(mode){
+    return '<span><b>' + esc(mode) + '</b> ' + fmt(rollup.modeCounts[mode]) + '</span>';
+  }).join('');
+  const metrics = ROLLUP_SCORE_FIELDS.map(function(field){
+    const distribution = ROLLUP_BANDS.map(function(band){
+      return '<span><b>' + esc(band.replace('-', '–')) + '</b> ' + fmt(rollup.distributions[field][band]) + '</span>';
+    }).join('');
+    return '<div class="btl-cat-metric"><div><b>' + fmt(rollup.medians[field]) + '</b><span>Median ' + esc(ROLLUP_SCORE_LABELS[field]) + '</span></div>' +
+      '<p aria-label="' + esc(ROLLUP_SCORE_LABELS[field]) + ' score distribution">' + distribution + '</p></div>';
+  }).join('');
+  return '<aside class="btl-cat-rollup" aria-label="Task-level AI Capability Index category summary">' +
+    '<div class="btl-cat-rollup-head"><div><span class="btl-overline">All ' + fmt(rollup.taskCount) + ' registered tasks in this category</span>' +
+      '<h4>Task-score distribution</h4></div><strong>Not a job-replacement score</strong></div>' +
+    '<div class="btl-cat-metrics">' + metrics + '</div>' +
+    '<div class="btl-cat-rollup-foot"><div><b>Evidence coverage</b><span>E0 ' + fmt(evidence.e0TaskCount) + ' · E1–E4 ' + fmt(evidence.e1ToE4TaskCount) + '</span>' + levels + '</div>' +
+      '<div><b>Operating modes</b>' + modes + '</div></div>' +
+    '<p class="btl-cat-rollup-guard">Evidence level records evaluation rigor, not whether a result supports capability. ' + esc(rollup.guardrail) + '</p>' +
+  '</aside>';
+}
 el('#btl-cats').innerHTML = DATA.categories.map(function(c, ci){
   return '<section class="btl-cat" id="btl-cat-' + ci + '" style="--cat:' + esc(c.color || '#4f8cff') + '">' +
     '<button type="button" class="btl-cat-head" data-cat="' + ci + '" aria-expanded="false" aria-controls="btl-cat-body-' + ci + '">' +
@@ -339,7 +422,7 @@ el('#btl-cats').innerHTML = DATA.categories.map(function(c, ci){
         '<span class="btl-cat-count">' + c.tasks.length + ' tasks</span>' +
         '<span class="btl-chev" aria-hidden="true">▾</span></span>' +
     '</button>' +
-    '<div class="btl-cat-body" id="btl-cat-body-' + ci + '" hidden><div class="btl-rows" data-rows="' + ci + '"></div></div>' +
+    '<div class="btl-cat-body" id="btl-cat-body-' + ci + '" hidden>' + categoryRollupHTML(c) + '<div class="btl-rows" data-rows="' + ci + '"></div></div>' +
   '</section>';
 }).join('');
 
@@ -502,7 +585,8 @@ function openModal(t, syncUrl){
   mTitle.textContent = t.title;
   mSub.innerHTML = '<code class="btl-slug">' + esc(t.slug || 'skill') + '.skill.md</code>' +
     '<button type="button" class="btl-art btl-link-copy" data-copy-link>Copy task link</button>' +
-    (t.article ? '<a class="btl-art" href="' + esc(t.article) + '" target="_blank" rel="noopener">Definitive article ↗</a>' : '') +
+    (t.taskPage ? '<a class="btl-art" href="' + esc(t.taskPage) + '" target="_blank" rel="noopener">Exact task SOP ↗</a>' : '') +
+    (t.article ? '<a class="btl-art" href="' + esc(t.article) + '" target="_blank" rel="noopener">Broader definitive hub ↗</a>' : '') +
     (t.download ? '<a class="btl-art" href="' + esc(t.download) + '" target="_blank" rel="noopener">Download full skill suite ⬇</a>' : '');
   mBody.innerHTML = capabilityCard(t) + renderMD(t.content || '*No skill.md captured yet — this task is a gap to close on the next run of the loop.*');
   if (syncUrl !== false && window.location.hash !== '#task=' + encodeURIComponent(t.slug || '')){
