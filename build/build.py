@@ -72,6 +72,10 @@ LONG_HORIZON = re.compile(r'\b(schedule|weekly|monthly|quarterly|monitor|maintai
 ACCESS_NEEDED = re.compile(
     r'\b(log ?in|admin|credential|password|permission|account access|business manager|wordpress|'
     r'google business profile|registrar|dns|payment|budget|publish|send|upload|post to|campaign)\b', re.I)
+ACCESS_INPUT = re.compile(
+    r'\b(log ?in|login|admin(?:istrator)?|editor role|credential|password|permission|account access|'
+    r'access to (?:the )?(?:account|site|dashboard|profile)|business manager access|registrar access|'
+    r'dns access|wordpress access)\b', re.I)
 ACCESS_GUIDANCE = re.compile(
     r'\b(access|login|log in|admin|permission|role|credential|account|business manager|website url|'
     r'drive folder|tracker)\b', re.I)
@@ -143,7 +147,7 @@ def score_capability(task, category):
         execution = min(execution, 30)
     execution = clamp(execution, 8, 98)
 
-    access_required = bool(ACCESS_NEEDED.search(title_desc + '\n' + inputs))
+    access_required = bool(ACCESS_NEEDED.search(title_desc) or ACCESS_INPUT.search(inputs))
     access_documented = bool(ACCESS_GUIDANCE.search(inputs)) if access_required else True
 
     accountability = 24
@@ -555,7 +559,8 @@ def main():
                       'runnableSkills': sum(bool((t.get('content') or '').strip()) for t in all_tasks),
                       'readySkills': sum(t['status'] == 'complete' and bool((t.get('content') or '').strip()) for t in all_tasks),
                       'hubSkills': sum(t.get('sourceType') == 'hub' for t in all_tasks),
-                      'spokeSkills': sum(t.get('sourceType') != 'hub' for t in all_tasks),
+                      'spokeSkills': sum(t.get('sourceType') == 'spoke' for t in all_tasks),
+                      'trackerGaps': sum(t.get('sourceType') == 'tracker-gap' for t in all_tasks),
                       'definitiveArticles': len({t['article'] for t in all_tasks if t.get('article')}),
                       'owners': len({t['owner'] for t in all_tasks if t.get('owner')}),
                       'categories': len(cats_meta)},
