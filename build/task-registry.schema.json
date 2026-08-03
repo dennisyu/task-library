@@ -1,0 +1,297 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://goodrich-dev.github.io/task-library/task-registry.schema.json",
+  "title": "BlitzMetrics Task Library Registry",
+  "description": "Public machine-readable task, skill, and AI capability registry.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "registryRevision",
+    "name",
+    "description",
+    "updated",
+    "links",
+    "provenance",
+    "semantics",
+    "stats",
+    "capabilityIndex",
+    "categories",
+    "tasks"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "schemaVersion": { "const": "1.0" },
+    "registryRevision": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "updated": { "type": "string", "minLength": 1 },
+    "links": {
+      "type": "object",
+      "required": [
+        "canonicalLibrary",
+        "interactiveDashboard",
+        "registry",
+        "schema",
+        "llms",
+        "evidenceSummary",
+        "sourceRepository",
+        "methodology",
+        "skillBundle"
+      ],
+      "properties": {
+        "canonicalLibrary": { "type": "string", "format": "uri" },
+        "interactiveDashboard": { "type": "string", "format": "uri" },
+        "registry": { "type": "string", "format": "uri" },
+        "schema": { "type": "string", "format": "uri" },
+        "llms": { "type": "string", "format": "uri" },
+        "evidenceSummary": { "type": "string", "format": "uri" },
+        "sourceRepository": { "type": "string", "format": "uri" },
+        "methodology": { "type": ["string", "null"], "format": "uri" },
+        "skillBundle": { "type": "string", "format": "uri" }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["generatedFrom", "precedence", "contentNote", "evidenceNote"],
+      "properties": {
+        "generatedFrom": { "type": "string", "format": "uri" },
+        "precedence": { "type": "string", "minLength": 1 },
+        "contentNote": { "type": "string", "minLength": 1 },
+        "evidenceNote": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "semantics": {
+      "type": "object",
+      "required": ["status", "evidence", "guardrail"],
+      "properties": {
+        "status": {
+          "type": "object",
+          "required": ["complete", "needs-work", "gap"],
+          "additionalProperties": { "type": "string" }
+        },
+        "evidence": {
+          "type": "object",
+          "required": ["E0", "E1", "E2", "E3", "E4"],
+          "additionalProperties": { "type": "string" }
+        },
+        "guardrail": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "stats": {
+      "type": "object",
+      "required": [
+        "total",
+        "complete",
+        "needsWork",
+        "gaps",
+        "runnableSkills",
+        "readySkills",
+        "hubSkills",
+        "spokeSkills",
+        "trackerGaps",
+        "definitiveArticles",
+        "owners",
+        "categories"
+      ],
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "capabilityIndex": {
+      "type": "object",
+      "required": [
+        "version",
+        "asOf",
+        "methodologyUrl",
+        "medianAIExecution",
+        "medianAutomationExposure",
+        "highExecutionTasks",
+        "highAutomationTasks",
+        "modeCounts",
+        "note"
+      ],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "asOf": { "type": "string", "minLength": 1 },
+        "methodologyUrl": { "type": "string", "format": "uri" },
+        "medianAIExecution": { "type": "number", "minimum": 0, "maximum": 100 },
+        "medianAutomationExposure": { "type": "number", "minimum": 0, "maximum": 100 },
+        "highExecutionTasks": { "type": "integer", "minimum": 0 },
+        "highAutomationTasks": { "type": "integer", "minimum": 0 },
+        "modeCounts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "note": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "categories": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/category" }
+    },
+    "tasks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/task" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "category": {
+      "type": "object",
+      "required": ["id", "name", "description", "taskCount"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "taskCount": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "task": {
+      "type": "object",
+      "required": [
+        "id",
+        "slug",
+        "name",
+        "title",
+        "description",
+        "categoryId",
+        "category",
+        "stage",
+        "status",
+        "sourceType",
+        "owner",
+        "flag",
+        "urls",
+        "skill",
+        "capability",
+        "evidence"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-+[a-z0-9]+)*$" },
+        "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-+[a-z0-9]+)*$" },
+        "name": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "categoryId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "category": { "type": "string", "minLength": 1 },
+        "stage": { "type": "string" },
+        "status": { "enum": ["complete", "needs-work", "gap"] },
+        "sourceType": { "enum": ["hub", "spoke", "tracker-gap", "unknown"] },
+        "owner": { "type": ["string", "null"] },
+        "flag": { "type": ["string", "null"] },
+        "urls": {
+          "type": "object",
+          "required": ["task", "definitiveArticle", "sourceArchive"],
+          "properties": {
+            "task": { "type": "string", "format": "uri-reference" },
+            "definitiveArticle": { "type": ["string", "null"], "format": "uri" },
+            "sourceArchive": { "type": ["string", "null"], "format": "uri" }
+          },
+          "additionalProperties": false
+        },
+        "skill": {
+          "type": "object",
+          "required": [
+            "mediaType",
+            "runnable",
+            "sha256",
+            "digestSource",
+            "markdownSha256",
+            "markdown"
+          ],
+          "properties": {
+            "mediaType": { "const": "text/markdown" },
+            "runnable": { "type": "boolean" },
+            "sha256": {
+              "description": "Digest of the exact resolved source text used for evidence freshness; null only when no skill source exists.",
+              "type": ["string", "null"],
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "digestSource": {
+              "description": "Whether sha256 came from exact resolved source text, a legacy normalized-content fallback, or is unavailable.",
+              "enum": ["resolved-source", "legacy-catalog-content", "unavailable"]
+            },
+            "markdownSha256": {
+              "description": "Digest of the normalized Markdown embedded in this registry record.",
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "markdown": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "capability": {
+          "type": "object",
+          "required": [
+            "version",
+            "aiExecution",
+            "humanAccountability",
+            "automationExposure",
+            "readiness",
+            "evidenceLevel",
+            "confidence",
+            "mode",
+            "access",
+            "reasons"
+          ],
+          "properties": {
+            "version": { "type": "string", "minLength": 1 },
+            "aiExecution": { "type": "number", "minimum": 0, "maximum": 100 },
+            "humanAccountability": { "type": "number", "minimum": 0, "maximum": 100 },
+            "automationExposure": { "type": "number", "minimum": 0, "maximum": 100 },
+            "readiness": { "type": "number", "minimum": 0, "maximum": 100 },
+            "evidenceLevel": { "type": "string", "pattern": "^E[0-4]$" },
+            "confidence": { "type": "string", "minLength": 1 },
+            "mode": { "type": "string", "minLength": 1 },
+            "access": { "type": "string", "minLength": 1 },
+            "reasons": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "evidence": {
+          "type": "object",
+          "required": [
+            "effectiveEvidenceLevel",
+            "effectiveRecordId",
+            "resultInterpretation",
+            "lastTestedAt",
+            "expiresAt",
+            "armMetrics",
+            "recordCount",
+            "activeRecordCount",
+            "history"
+          ],
+          "properties": {
+            "effectiveEvidenceLevel": { "enum": ["E0", "E1", "E2", "E3", "E4"] },
+            "effectiveRecordId": { "type": ["string", "null"] },
+            "resultInterpretation": {
+              "type": ["string", "null"],
+              "enum": ["supports-capability", "does-not-support-capability", "mixed", null]
+            },
+            "lastTestedAt": { "type": ["string", "null"] },
+            "expiresAt": { "type": ["string", "null"] },
+            "armMetrics": {
+              "type": "array",
+              "items": { "type": "object" }
+            },
+            "recordCount": { "type": "integer", "minimum": 0 },
+            "activeRecordCount": { "type": "integer", "minimum": 0 },
+            "history": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
