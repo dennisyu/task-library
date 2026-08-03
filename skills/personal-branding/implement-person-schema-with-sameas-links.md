@@ -44,4 +44,4 @@ See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
 - Hub: /personal-brand
-- Related: /digital-plumbing · /knowledge-panel · previous: add-consistent-headshots-and-bios-across-profiles · Phase 4 upgrade: implement-technical-schema-markup
+- Related: /digital-plumbing · /what-is-a-knowledge-panel · previous: add-consistent-headshots-and-bios-across-profiles · Phase 4 upgrade: implement-technical-schema-markup
