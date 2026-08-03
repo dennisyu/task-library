@@ -45,4 +45,4 @@ See `boil-the-ocean.md` for the full operating principles.
 ## Definitive article & links
 - Hub: /digital-plumbing
 - Related (run order): set-up-youtube-channel-with-proper-branding → this → set-up-consistent-headshots-and-bios-across-profiles → add-schema-markup-person-localbusiness
-- Cross-links: /knowledge-panel (entity validation) · /personal-brand (Phase 1)
+- Cross-links: /what-is-a-knowledge-panel (entity validation) · /personal-brand (Phase 1)
