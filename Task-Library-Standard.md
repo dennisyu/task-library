@@ -2,7 +2,7 @@
 ### How every task becomes a definitive article + a skill.md + linked examples
 
 **Source of truth:** [How to Create a Definitive Article for Any BlitzMetrics Concept](https://blitzmetrics.com/definitive-article-guide/) (v1.1, Apr 2026) and the [Task Library Dashboard](https://blitzmetrics.com/task-library-dashboard/).
-**Purpose:** a single spec the Fable workers (and any human/agent) follow to bring all 239 tasks up to standard — each one documented, downloadable as a skill, and wired into the SEO Tree.
+**Purpose:** a single spec that any human or agent follows to bring every registered task up to standard — documented, downloadable as a skill, and wired into the SEO Tree. Counts are derived by the build; this standard never hard-codes them.
 
 ---
 
