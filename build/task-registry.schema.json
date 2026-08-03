@@ -94,6 +94,8 @@
         "spokeSkills",
         "trackerGaps",
         "definitiveArticles",
+        "tasksWithArticle",
+        "tasksWithoutArticle",
         "owners",
         "categories"
       ],
