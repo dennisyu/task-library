@@ -45,5 +45,5 @@ See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
 - Hub: /dad
-- Related: /one-minute-video-guide · /personal-brand (Phases 2–3) · /content-factory (turning the same videos into articles) · /knowledge-panel (the long-game payoff of entity signal)
+- Related: /one-minute-video-guide · /personal-brand (Phases 2–3) · /content-factory (turning the same videos into articles) · /what-is-a-knowledge-panel (the long-game payoff of entity signal)
 - Run order (platform setup): run-twitter-x-promotion-for-thought-leader-threads → **boost-one-minute-videos-for-personal-branding** → use-dollar-a-day-to-influence-media-coverage
