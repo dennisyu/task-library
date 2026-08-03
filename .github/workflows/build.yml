@@ -10,23 +10,38 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
-      - name: Test capability-index guardrails
-        run: python3 build/test_capability.py
+      - name: Verify external repository governance before trusted deployment
+        if: github.event_name != 'pull_request'
+        run: python3 build/check_repository_governance.py --repository "$GITHUB_REPOSITORY" --branch main --required-check build
+
+      - name: Enforce append-only evidence history
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          EVIDENCE_EVENT: ${{ github.event_name }}
+        run: python3 build/check_evidence_append_only.py --base "$BASE_SHA" --event "$EVIDENCE_EVENT"
+
+      - name: Scan repository for high-confidence credentials
+        run: python3 build/scan_repository_secrets.py
+
+      - name: Run repository tests
+        run: python3 -m unittest discover -s build -p 'test_*.py'
 
       # Pull the Asset Tracker's published-to-web CSV for status/owner overrides
       # and sheet-onboarded skills. Value is stored as the TRACKER_CSV_URL *secret*.
       # (Checked in the shell, not in `if:`, because a secret isn't reliably
       #  available to a step-level `if` expression.)
       - name: Fetch Asset Tracker CSV
+        if: github.event_name != 'pull_request'
         env:
           TRACKER_CSV_URL: ${{ secrets.TRACKER_CSV_URL }}
         run: |
@@ -37,7 +52,12 @@ jobs:
             echo "TRACKER_CSV_URL secret is empty; building without the sheet."
           fi
 
-      - name: Build data.json
+      - name: Build public data.json for pull requests
+        if: github.event_name == 'pull_request'
+        run: python3 build/build.py
+
+      - name: Build data.json for trusted events
+        if: github.event_name != 'pull_request'
         env:
           SKILLS_READ_TOKEN: ${{ secrets.SKILLS_READ_TOKEN }}  # only needed for private external repos
         run: |
@@ -47,20 +67,50 @@ jobs:
             python3 build/build.py
           fi
 
+      - name: Validate capability evidence ledger
+        run: python3 build/validate_evidence.py --attach-to-task-data
+
+      - name: Build machine-readable registry surfaces
+        run: python3 build/build_registry_surfaces.py
+
+      - name: Test machine-readable registry surfaces
+        run: |
+          python3 build/test_registry_surfaces.py
+          python3 build/build_registry_surfaces.py --check
+
+      - name: Observe public article health
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        run: python3 build/audit_public_articles.py --input dashboard/data.json --out dashboard/public-article-audit.json
+
+      - name: Observe exact task-page coverage and legacy-page drift
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        run: python3 build/audit_task_pages.py --input dashboard/data.json --map build/task-pages.json --out dashboard/task-page-audit.json
+
+      - name: Observe contextual internal-link graph
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        run: python3 build/audit_internal_link_graph.py --input dashboard/data.json --map build/task-pages.json --out dashboard/internal-link-graph-audit.json
+
       - name: Build pack zips
         run: python3 build/build-packs.py
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: dashboard
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
