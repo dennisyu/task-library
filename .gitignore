@@ -1,0 +1,12 @@
+# Local build inputs and caches
+tracker.csv
+build/.cache/
+**/__pycache__/
+
+# Deployment-only artifacts. GitHub Actions rebuilds these from data.json.
+dashboard/TaskLibrary-Skills-all.zip
+dashboard/TaskLibrary-Skills-ready.zip
+dashboard/llms.txt
+dashboard/task-registry.json
+dashboard/task-registry.schema.json
+dashboard/evidence-summary.json
