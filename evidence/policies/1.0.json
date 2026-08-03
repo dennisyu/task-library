@@ -1,0 +1,83 @@
+{
+  "policyVersion": "1.0",
+  "schemaVersion": "1.0",
+  "levelOrder": ["E0", "E1", "E2", "E3", "E4"],
+  "acceptance": {
+    "minimumWeightedScoreFloor": 0.7,
+    "requiresCriticalCriterion": true,
+    "rejectSeverities": ["S3", "S4"],
+    "supportsCapabilityMinimumAcceptanceRate": 0.7
+  },
+  "trustedReceiptIssuers": {},
+  "trustedEvaluatorIssuers": {},
+  "trustedProductionDataIssuers": {},
+  "trustedOutcomeIssuers": {},
+  "qualification": {
+    "E1": {
+      "minimumAcceptedAiAttempts": 1,
+      "allowedCaseDesigns": ["known-demonstration", "repeated-cases", "held-out", "production"],
+      "requiresImmutableStack": true
+    },
+    "E2": {
+      "minimumDistinctCases": 3,
+      "minimumEvaluatedAiAttempts": 3,
+      "requiredAiMeasurements": ["quality", "autonomousShare", "endToEndScope", "generalization"],
+      "allowedCaseDesigns": ["repeated-cases", "held-out"],
+      "requiresPreregistration": true,
+      "requiresExternallyBoundPreregistration": true,
+      "requiresImmutableStack": true,
+      "requiresCompleteCaseCoverage": true,
+      "maximumAttemptsPerCasePerArm": 1
+    },
+    "E3": {
+      "minimumMatchedCasesPerArm": 3,
+      "requiredArmModes": ["human-only", "ai-only", "human-ai"],
+      "allowedCaseDesigns": ["repeated-cases", "held-out"],
+      "allowedAssignments": ["paired", "randomized", "counterbalanced"],
+      "allowedEvaluatorIndependence": ["peer", "independent"],
+      "requiredAiMeasurements": ["quality", "autonomousShare", "endToEndScope", "generalization"],
+      "requiredHumanMeasurements": ["quality", "endToEndScope", "generalization"],
+      "requiresBlindedEvaluator": true,
+      "requiresMatchedAiStack": true,
+      "requiresPreregistration": true,
+      "requiresExternallyBoundPreregistration": true,
+      "requiresPreregisteredPrimaryComparison": true,
+      "requiresImmutableStack": true,
+      "requiresCompleteCaseCoverage": true,
+      "requiresMatchedCaseSets": true,
+      "maximumAttemptsPerCasePerArm": 1
+    },
+    "E4": {
+      "minimumProductionCases": 20,
+      "minimumCalendarDays": 30,
+      "requiredAiMeasurements": ["quality", "autonomousShare", "endToEndScope", "generalization"],
+      "requiresEnvironment": "production",
+      "requiresCaseDesign": "production",
+      "requiresAccountableOwner": true,
+      "requiresDownstreamOutcome": true,
+      "requiresAttemptCost": true,
+      "requiresIncidentLedger": true,
+      "requiresPreregistration": true,
+      "requiresExternallyBoundPreregistration": true,
+      "requiresSamplingFrame": true,
+      "requiresEventLedger": true,
+      "requiresImmutableStack": true,
+      "requiresCompleteCaseCoverage": true,
+      "maximumAttemptsPerCasePerArm": 1
+    }
+  },
+  "freshnessDays": {
+    "E1": 90,
+    "E2": 180,
+    "E3": 180,
+    "E4": 90
+  },
+  "requiredMaterialChangeTriggers": [
+    "skill-revision",
+    "model-version",
+    "tool-version",
+    "permission-scope",
+    "acceptance-criteria",
+    "environment"
+  ]
+}
