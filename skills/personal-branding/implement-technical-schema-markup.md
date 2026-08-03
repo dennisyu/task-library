@@ -3,7 +3,7 @@ name: implement-technical-schema-markup
 description: Upgrade the entity's structured data — Person or Organization schema with a complete, verified sameAs graph — to Knowledge Panel grade.
 category: Personal Branding
 stage: —
-definitive_article: /knowledge-panel
+definitive_article: /what-is-a-knowledge-panel
 status: needs-work
 ---
 
@@ -42,5 +42,5 @@ Because it persists, the update trigger is real: new validation pages from Phase
 See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
-- Hub: /knowledge-panel
+- Hub: /what-is-a-knowledge-panel
 - Related: /personal-brand · upgrades: implement-person-schema-with-sameas-links · next: claim-and-verify-knowledge-panel-when-it-appears
