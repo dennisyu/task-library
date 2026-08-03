@@ -1,5 +1,5 @@
 # The BlitzMetrics Task Library Standard
-### How every task becomes a definitive article + a skill.md + linked examples
+### How every task connects an exact SOP, a definitive hub, a skill.md, and evidence
 
 **Source of truth:** [How to Create a Definitive Article for Any BlitzMetrics Concept](https://blitzmetrics.com/definitive-article-guide/) (v1.1, Apr 2026) and the [Task Library Dashboard](https://blitzmetrics.com/task-library-dashboard/).
 **Purpose:** a single spec that any human or agent follows to bring every registered task up to standard — documented, downloadable as a skill, and wired into the SEO Tree. Counts are derived by the build; this standard never hard-codes them.
@@ -7,13 +7,16 @@
 ---
 
 ## The target model: three artifacts per concept
-The desired architecture gives each concept/task **three linked artifacts**. Coverage is reported separately because a task can have a runnable skill while its hub or accepted example is still missing:
+The desired architecture gives each bounded task **four linked artifacts**. Coverage is reported separately because a task can have a runnable skill while its exact page, hub, or accepted example is still missing:
 
-1. **Definitive article** — the one canonical page that owns the concept (the hub). Lives on blitzmetrics.com at a short URL.
-2. **skill.md** — the machine-readable SOP an AI agent runs to *do* the task. Downloadable, one file per task. References its definitive article.
-3. **Examples / meta-articles** — real proof the task was done, each documented with the Meta-Article Prompt and linking back up to the definitive article.
+1. **Exact task page** — the public, human-readable SOP for this bounded task. It may share a URL with the hub only when that page actually teaches the exact task; title similarity is not enough.
+2. **Definitive article** — the one canonical page that owns the broader concept (the hub). Lives on blitzmetrics.com at a short URL.
+3. **skill.md** — the machine-readable SOP an AI agent or operator runs to *do* the task. Downloadable, one file per task. References its definitive article and must agree with the reviewed exact task page when one exists.
+4. **Examples / meta-articles** — real receipts showing what happened on specific runs, each documented with the Meta-Article Prompt and linking back up to the task page/hub.
 
-> Relationship (one direction up): **examples / meta-articles → definitive article → course/service**, and the definitive article links **across** to related definitive articles. Never publish a second page that competes with a hub (that's "content vandalism").
+> Relationship: **examples / meta-articles → exact task page → definitive article → course/service**. A combined task-page/hub can collapse the middle two links. Hubs link down to relevant tasks and across only to genuinely useful prerequisite or next-step hubs. Never publish a second page that competes with a hub (that's "content vandalism"), and never add boilerplate sitewide links just to inflate the graph.
+
+Reviewed exact-page mappings live in `build/task-pages.json`. The mapping is a documentation relationship, not capability evidence. Unmapped catalog tasks and task-like legacy pages remain visible repair queues.
 
 ---
 
@@ -79,7 +82,7 @@ status: <complete | needs-work | gap>
 ## Steps
 1. <imperative, concrete step>
 2. ...
-   (Mirror the definitive article's process exactly; this section IS the SOP.)
+   (Mirror the reviewed exact task page when one exists; use the definitive article for the broader method. This section IS the machine SOP.)
 
 ## Definition of done (QA checklist)
 - [ ] <objective, checkable pass criteria — what "good" looks like>
@@ -97,7 +100,7 @@ status: <complete | needs-work | gap>
 
 **Rules for skill.md authors (Fable workers):**
 - The `name` slug is permanent (installs/bundles depend on it). Match the task slug.
-- Steps must mirror the task's real SOP — use the definitive article's documented process, Dennis's frameworks (GCT, MAA, the 4 P's, SEO Tree, entity-linking decision tree, Dollar a Day mechanics), and the task description. No invented tools or fabricated URLs — reference only the task's real definitive-article short URL and known BlitzMetrics concepts.
+- Steps must mirror the task's real SOP — use the reviewed exact task page when available, the definitive article's method, Dennis's frameworks (GCT, MAA, the 4 P's, SEO Tree, entity-linking decision tree, Dollar a Day mechanics), and the task description. No invented tools or fabricated URLs.
 - Every skill.md must carry a **Definition of done** checklist (the QA layer) and at least a placeholder **Example** so the meta-article loop has a slot to fill.
 - Agent persistence, memory, autonomy, self-verification, or named-model behavior must be labeled as design intent until a frozen stack and accepted evidence record support it. Do not present orchestration prose as demonstrated capability.
 - For **gap** tasks (no article yet), set `definitive_article: GAP — to be written`, write the SOP from the description + method, and flag the missing hub.
@@ -114,4 +117,4 @@ Requirement 3 is supported by **meta-articles** — each documents one real run 
 - **Needs Work** — runnable or partially documented guidance with a known contract, article, example, ownership, or review gap.
 - **Gap** — a defined task whose hub or runnable guidance is explicitly missing/incomplete.
 
-Article coverage, ownership, example acceptance, and E0–E4 execution evidence are separate fields. Never infer one from the documentation status.
+Exact-task-page coverage, definitive-article coverage, ownership, example acceptance, and E0–E4 execution evidence are separate fields. Never infer one from another or from the documentation status.
