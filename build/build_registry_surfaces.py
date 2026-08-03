@@ -209,6 +209,22 @@ def build_registry(data, base_url=DEFAULT_BASE_URL):
         raise ValueError(f'dashboard stats.total is {expected_total}, but registry contains {len(tasks)} tasks')
     if require(stats, 'categories', 'dashboard stats') != len(categories):
         raise ValueError('dashboard stats.categories does not match the category array')
+    actual_with_article = sum(bool(task['urls']['definitiveArticle']) for task in tasks)
+    actual_without_article = len(tasks) - actual_with_article
+    actual_articles = len({
+        task['urls']['definitiveArticle']
+        for task in tasks if task['urls']['definitiveArticle']
+    })
+    for field, actual in {
+        'tasksWithArticle': actual_with_article,
+        'tasksWithoutArticle': actual_without_article,
+        'definitiveArticles': actual_articles,
+    }.items():
+        reported = require(stats, field, 'dashboard stats')
+        if reported != actual:
+            raise ValueError(
+                f'dashboard stats.{field} is {reported}, but task records produce {actual}'
+            )
 
     registry = {
         '$schema': f'{base_url}/task-registry.schema.json',
@@ -285,6 +301,7 @@ def build_llms_text(registry):
         f"- [Task registry JSON]({links['registry']}): The complete machine-readable registry, including skill Markdown and capability evidence.",
         f"- [Task registry JSON Schema]({links['schema']}): Versioned contract for validating registry clients.",
         f"- [Validated evidence summary]({links['evidenceSummary']}): Append-only E1-E4 trial results joined to tasks by stable slug.",
+        f"- [Public article health audit]({links['interactiveDashboard']}public-article-audit.json): Latest scheduled observation of task-linked HTTP, redirect, content, login, and canonical health.",
         f"- [Interactive Task Library]({links['interactiveDashboard']}): Human-facing search, filters, scorecards, and task detail views.",
         f"- [Canonical BlitzMetrics page]({links['canonicalLibrary']}): The first-party library page and project context.",
         f"- [Static task index]({links['interactiveDashboard']}library-index.html): Semantic HTML list of every task and definitive article.",
