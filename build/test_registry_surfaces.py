@@ -52,6 +52,8 @@ def fixture_data():
             'spokeSkills': 0,
             'trackerGaps': 0,
             'definitiveArticles': 1,
+            'tasksWithArticle': 1,
+            'tasksWithoutArticle': 0,
             'owners': 0,
             'categories': 1,
         },
@@ -160,6 +162,7 @@ class RegistrySurfaceTests(unittest.TestCase):
         self.assertTrue(output.startswith('# BlitzMetrics Task Library\n'))
         self.assertIn('/task-registry.json', output)
         self.assertIn('/task-registry.schema.json', output)
+        self.assertIn('/public-article-audit.json', output)
         self.assertIn('E0', output)
         self.assertIn('not proof that the task succeeds in production', output)
 
@@ -170,8 +173,24 @@ class RegistrySurfaceTests(unittest.TestCase):
         self.assertEqual(schema['properties']['schemaVersion']['const'], surfaces.SCHEMA_VERSION)
         required = set(schema['$defs']['task']['required'])
         self.assertTrue({'id', 'slug', 'flag', 'urls', 'skill', 'capability', 'evidence'} <= required)
+        self.assertTrue(
+            {'definitiveArticles', 'tasksWithArticle', 'tasksWithoutArticle'}
+            <= set(schema['properties']['stats']['required'])
+        )
         self.assertEqual(schema['$defs']['task']['properties']['capability']
                          ['properties']['evidenceLevel']['pattern'], '^E[0-4]$')
+
+    def test_article_coverage_stats_must_match_task_records(self):
+        for field, bad_value in (
+            ('tasksWithArticle', 0),
+            ('tasksWithoutArticle', 1),
+            ('definitiveArticles', 0),
+        ):
+            with self.subTest(field=field):
+                data = fixture_data()
+                data['stats'][field] = bad_value
+                with self.assertRaisesRegex(ValueError, f'stats.{field}'):
+                    surfaces.build_registry(data)
 
     def test_current_dashboard_payload_renders_every_registered_task(self):
         with open(surfaces.DEFAULT_INPUT, encoding='utf-8') as handle:
