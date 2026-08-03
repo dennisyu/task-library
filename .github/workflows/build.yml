@@ -2,6 +2,8 @@ name: Build & deploy Task Library
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   schedule:
     - cron: '0 6 * * *'   # daily 6:00 UTC — picks up external skill repos + tracker edits
   workflow_dispatch:
@@ -16,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Test capability-index guardrails
+        run: python3 build/test_capability.py
 
       # Pull the Asset Tracker's published-to-web CSV for status/owner overrides
       # and sheet-onboarded skills. Value is stored as the TRACKER_CSV_URL *secret*.
