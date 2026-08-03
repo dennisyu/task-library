@@ -44,4 +44,4 @@ See `boil-the-ocean.md` for the full operating principles.
 ## Definitive article & links
 - Hub: /digital-plumbing (dedicated guide "How to Set Up Schema Markup for Personal Brand Site" is queued in Gaps & Tasks to Create — high priority)
 - Related (run order): ensure-nap-consistency-across-platforms → claim-and-brand-facebook-page (and the other profile skills) → this
-- Cross-links: /knowledge-panel (schema is the technical leg of a panel) · /personal-brand (Phase 1) · /entity-linking
+- Cross-links: /what-is-a-knowledge-panel (schema is the technical leg of a panel) · /personal-brand (Phase 1) · /entity-linking
