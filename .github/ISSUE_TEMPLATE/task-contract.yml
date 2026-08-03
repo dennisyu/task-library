@@ -2,8 +2,8 @@ name: New or repaired task contract
 description: Propose a bounded task or repair its canonical page, skill, access, or QA contract.
 title: "[Task contract]: "
 labels:
-  - intake
-  - task-contract
+  - documentation
+  - enhancement
 body:
   - type: markdown
     attributes:
