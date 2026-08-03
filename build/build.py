@@ -546,6 +546,8 @@ def main():
                       'complete': sum(t['status'] == 'complete' for t in all_tasks),
                       'needsWork': sum(t['status'] == 'needs-work' for t in all_tasks),
                       'gaps': sum(t['status'] == 'gap' for t in all_tasks),
+                      'runnableSkills': sum(bool((t.get('content') or '').strip()) for t in all_tasks),
+                      'readySkills': sum(t['status'] == 'complete' and bool((t.get('content') or '').strip()) for t in all_tasks),
                       'hubSkills': sum(t.get('sourceType') == 'hub' for t in all_tasks),
                       'spokeSkills': sum(t.get('sourceType') != 'hub' for t in all_tasks),
                       'definitiveArticles': len({t['article'] for t in all_tasks if t.get('article')}),
@@ -570,9 +572,9 @@ def main():
     json.dump(data, open(args.out, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     write_library_index(data, os.path.join(os.path.dirname(args.out), 'library-index.html'))
     nall = write_zip(data, os.path.dirname(args.out), 'TaskLibrary-Skills-all.zip',
-                     'The complete Task Library. Rebuilt on every library build.', False)
+                     'All registered task records that resolve to runnable skill content. Rebuilt on every library build.', False)
     nready = write_zip(data, os.path.dirname(args.out), 'TaskLibrary-Skills-ready.zip',
-                       'Owner-signed skills only. Rebuilt on every library build.', True)
+                       'Runnable skills marked documentation-complete. Ownership is not implied. Rebuilt on every library build.', True)
     print(f'zips: all={nall}, ready={nready}')
 
     print(f"built {len(all_tasks)}/{len(registry) + len(sheet_only)} skills -> {os.path.relpath(args.out, ROOT)}")
