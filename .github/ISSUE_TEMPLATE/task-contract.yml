@@ -1,5 +1,5 @@
 name: New or repaired task contract
-description: Propose a bounded task or repair its canonical page, skill, access, or QA contract.
+description: Propose a bounded task or repair its exact SOP page, definitive hub, skill, access, or QA contract.
 title: "[Task contract]: "
 labels:
   - documentation
@@ -17,7 +17,7 @@ body:
       options:
         - New task contract
         - Repair an existing contract
-        - Repair a canonical article or redirect
+        - Repair an exact task page, definitive article, or redirect
         - Repair skill context, access, or QA guidance
     validations:
       required: true
@@ -60,10 +60,18 @@ body:
       required: true
 
   - type: textarea
+    id: task_page_url
+    attributes:
+      label: Exact task page URL and mapping state
+      description: Give the public page that teaches this bounded task, plus duplicate or redirect state. Say GAP if no exact task page exists. Do not substitute a broad hub merely because it mentions the task.
+    validations:
+      required: true
+
+  - type: textarea
     id: canonical_url
     attributes:
-      label: Canonical URL and duplicate-page state
-      description: Give the one definitive article URL, its current state, and any duplicate URLs or redirects. Say GAP if no canonical article exists.
+      label: Definitive article URL and duplicate-page state
+      description: Give the one canonical article that owns the broader concept, its current state, and any duplicate URLs or redirects. Say GAP if no definitive article exists. It may equal the exact task page only when that page genuinely serves both roles.
     validations:
       required: true
 
