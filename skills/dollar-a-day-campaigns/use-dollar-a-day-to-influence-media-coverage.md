@@ -44,5 +44,5 @@ See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
 - Hub: /dad
-- Related: /thank-you-machine (gratitude as media outreach) · /personal-brand (Phase 3: get mentioned in publications) · /knowledge-panel (press is third-party validation)
+- Related: /thank-you-machine (gratitude as media outreach) · /personal-brand (Phase 3: get mentioned in publications) · /what-is-a-knowledge-panel (press is third-party validation)
 - Run order (platform setup): boost-one-minute-videos-for-personal-branding → **use-dollar-a-day-to-influence-media-coverage** (the earned-media end-game)
