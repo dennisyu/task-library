@@ -44,4 +44,4 @@ See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
 - Hub: GAP — to be written (interim anchor: /personal-brand, Phase 3)
-- Related: /personal-brand · /knowledge-panel · /dad · siblings: generate-backlinks-and-entity-mentions · build-third-party-validation
+- Related: /personal-brand · /what-is-a-knowledge-panel · /dad · siblings: generate-backlinks-and-entity-mentions · build-third-party-validation
