@@ -122,6 +122,7 @@ class CapabilityGuardrailTests(unittest.TestCase):
         self.assertEqual(count, 1)
         self.assertIn('TaskLibrary-Skills/boil-the-ocean.md', names)
         self.assertEqual(manifest['total'], 1)
+        self.assertEqual(manifest['operatingContract'], 'boil-the-ocean.md')
 
     def test_tracker_only_and_override_rows_share_canonical_article_policy(self):
         self.assertEqual(
