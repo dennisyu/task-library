@@ -44,4 +44,4 @@ See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
 - Hub: /personal-brand
-- Related: /knowledge-panel (entity identity depends on this) · previous: set-up-professional-social-profiles · next: implement-person-schema-with-sameas-links
+- Related: /what-is-a-knowledge-panel (entity identity depends on this) · previous: set-up-professional-social-profiles · next: implement-person-schema-with-sameas-links
