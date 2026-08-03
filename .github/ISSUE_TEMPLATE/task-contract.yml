@@ -1,0 +1,126 @@
+name: New or repaired task contract
+description: Propose a bounded task or repair its canonical page, skill, access, or QA contract.
+title: "[Task contract]: "
+labels:
+  - intake
+  - task-contract
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for documentation and skill changes. It does not upgrade capability evidence. Do not include credentials, secrets, or private customer data.
+
+  - type: dropdown
+    id: change_kind
+    attributes:
+      label: Change type
+      options:
+        - New task contract
+        - Repair an existing contract
+        - Repair a canonical article or redirect
+        - Repair skill context, access, or QA guidance
+    validations:
+      required: true
+
+  - type: input
+    id: task_slug
+    attributes:
+      label: Permanent task slug
+      description: Use lowercase kebab-case. Existing slugs must not be renamed casually because links and bundles depend on them.
+      placeholder: create-social-media-posts-per-platform
+    validations:
+      required: true
+
+  - type: input
+    id: category
+    attributes:
+      label: Task Library category
+      description: Use an existing category from build/categories.json or explain a proposed change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: task_outcome
+    attributes:
+      label: Bounded outcome and trigger
+      description: State who runs this, when they run it, the one observable result, and what is outside scope.
+    validations:
+      required: true
+
+  - type: textarea
+    id: owner_reviewer
+    attributes:
+      label: Owner, reviewer, and decision authority
+      description: Name the maintainer and reviewer, plus who can approve, reject, stop, publish, spend, delete, or contact someone externally.
+      placeholder: |
+        Owner:
+        Reviewer:
+        Approval authority:
+    validations:
+      required: true
+
+  - type: textarea
+    id: canonical_url
+    attributes:
+      label: Canonical URL and duplicate-page state
+      description: Give the one definitive article URL, its current state, and any duplicate URLs or redirects. Say GAP if no canonical article exists.
+    validations:
+      required: true
+
+  - type: textarea
+    id: skill_source
+    attributes:
+      label: Exact skill source
+      description: Give the repo, exact path or URI, immutable revision, and exact source SHA-256. For a not-yet-created skill, give the proposed path and say no digest yet.
+      placeholder: |
+        URI/path:
+        Revision (commit SHA):
+        SHA-256:
+    validations:
+      required: true
+
+  - type: textarea
+    id: inputs_access
+    attributes:
+      label: Inputs, context, access, and privacy
+      description: List inputs, systems, least-privilege scopes, sensitive-data handling, and human gates for consequential actions. Never paste secrets.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List objective pass/fail checks and mark every outcome- or safety-critical criterion. Identify the reviewer who judges them.
+    validations:
+      required: true
+
+  - type: textarea
+    id: failure_rollback
+    attributes:
+      label: Failure modes, rollback, and escalation
+      description: Give stop conditions, detection signals, the reversible recovery path, and the escalation owner.
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples and receipts
+      description: Link redacted real examples, meta-articles, screenshots, or change receipts. Say example needed if none exists.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: truth_checks
+    attributes:
+      label: Truth and safety checks
+      options:
+        - label: I understand that documentation status is separate from E0-E4 capability evidence, and this issue is not evidence.
+          required: true
+        - label: I made no unsupported earnings, employment, client-result, payback, autonomy, or job/sector replacement claim.
+          required: true
+        - label: I included no credentials, secrets, private customer data, or unredacted personal information.
+          required: true
+        - label: I identified human review gates and a rollback or escalation path for consequential actions.
+          required: true
