@@ -457,7 +457,12 @@ let modalTask = null, lastFocus = null, prevOverflow = '';
 
 function capabilityCard(t){
   const c = t.capability || {};
+  const e = t.evidence || {};
   if (typeof c.aiExecution !== 'number') return '';
+  const evidenceLevel = e.effectiveEvidenceLevel || c.evidenceLevel || 'E0';
+  const evidenceResult = e.resultInterpretation
+    ? ' · ' + String(e.resultInterpretation).replace(/-/g, ' ')
+    : (evidenceLevel === 'E0' ? ' · heuristic only' : '');
   const reasons = (c.reasons || []).map(function(r){ return '<li>' + esc(r) + '</li>'; }).join('');
   const method = DATA.capabilityIndex && DATA.capabilityIndex.methodologyUrl
     ? '<a href="' + esc(DATA.capabilityIndex.methodologyUrl) + '" target="_blank" rel="noopener">Read the rubric ↗</a>' : '';
@@ -471,7 +476,7 @@ function capabilityCard(t){
       '<div><b class="exp-' + exposureBand(c.automationExposure) + '">' + c.automationExposure + '</b><span>Automation exposure</span></div>' +
       '<div><b>' + c.readiness + '</b><span>Deployment readiness</span></div>' +
     '</div>' +
-    '<div class="btl-cap-notes"><span>Evidence: <strong>' + esc(c.evidenceLevel || 'E0') + '</strong></span><span>Confidence: <strong>' + esc(c.confidence || '—') + '</strong></span><span>Access: <strong>' + esc(c.access || '—') + '</strong></span></div>' +
+    '<div class="btl-cap-notes"><span>Evidence: <strong>' + esc(evidenceLevel + evidenceResult) + '</strong></span><span>Confidence: <strong>' + esc(c.confidence || '—') + '</strong></span><span>Access: <strong>' + esc(c.access || '—') + '</strong></span></div>' +
     (reasons ? '<ul>' + reasons + '</ul>' : '') +
   '</section>';
 }
