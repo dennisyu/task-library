@@ -28,6 +28,185 @@ REQUIRED_SECTIONS = ['## Inputs', '## Steps', '## Definition of done (QA checkli
                      '## Example(s)', '## Definitive article & links']
 STUB = re.compile(r'(placeholder|TBD|to be (written|documented|filled)|coming soon|lorem ipsum)', re.I)
 
+CAPABILITY_VERSION = '0.1'
+CAPABILITY_BASE = {
+    'Content Factory — Produce': 35,
+    'Content Factory — Process': 88,
+    'Content Factory — Post': 78,
+    'Content Factory — Promote': 68,
+    'Digital Plumbing': 70,
+    'Dollar a Day Campaigns': 72,
+    'Website QA Audit': 90,
+    'SEO & Content Architecture': 84,
+    'Personal Branding': 64,
+    'Strategy & Measurement': 74,
+    'Thank You Machine': 54,
+    'Knowledge System Maintenance': 82,
+    'Gaps & Tasks to Create': 62,
+}
+
+PHYSICAL = re.compile(
+    r'\b(record|film|filming|camera|conference presentation|casual conversation|take photos?|headshots?|'
+    r'capture client|capture stories|phone video|in[- ]person)\b', re.I)
+RELATIONSHIP = re.compile(
+    r'\b(outreach|engage with (?:social )?comments|collaborat(?:e|ive)|industry peers?|get featured|'
+    r'podcast guest|thank[- ]you|testimonial|referral|partnership|pitch|interview|unhappy client|negotiate)\b', re.I)
+DETERMINISTIC = re.compile(
+    r'\b(check|verify|audit|validate|compare|measure|extract|transcribe|proofread|configure|install|test|'
+    r'ensure|categorize|tag|identify|calculate|inventory|reconcile|detect|scan)\b', re.I)
+GENERATIVE = re.compile(
+    r'\b(write|create|draft|repurpose|outline|summarize|edit|clip|format|generate|schema markup|'
+    r'meta descriptions?|title tags?)\b', re.I)
+JUDGMENT = re.compile(
+    r'\b(strategy|recommend|prioritize|diagnose|decide|select|strongest|best|brand voice|audience|offer|'
+    r'performance|unsupported claims?|editorial|business outcome)\b', re.I)
+EXTERNAL_ACTION = re.compile(
+    r'\b(publish|post to|send|email|dm|upload|boost|launch|campaign|budget|kill|scale|claim|change|'
+    r'configure dns|registrar|business manager|wordpress author)\b', re.I)
+SPEND = re.compile(r'\b(ads?|ad set|budget|campaign|spend|boost|dollar[- ]a[- ]day|scale winners?|kill underperformers?)\b', re.I)
+HIGH_STAKES = re.compile(
+    r'\b(legal|medical|privacy|permission|consent|financial|invoice|contract|copyright|domain ownership|'
+    r'dns|dmarc|reputation)\b', re.I)
+LONG_HORIZON = re.compile(r'\b(schedule|weekly|monthly|quarterly|monitor|maintain|recruit|multiweek|ongoing)\b', re.I)
+ACCESS_NEEDED = re.compile(
+    r'\b(log ?in|admin|credential|password|permission|account access|business manager|wordpress|'
+    r'google business profile|registrar|dns|payment|budget|publish|send|upload|post to|campaign)\b', re.I)
+ACCESS_GUIDANCE = re.compile(
+    r'\b(access|login|log in|admin|permission|role|credential|account|business manager|website url|'
+    r'drive folder|tracker)\b', re.I)
+
+
+def clamp(n, low=0, high=100):
+    return max(low, min(high, int(round(n))))
+
+
+def section(text, heading):
+    m = re.search(r'^##\s+' + heading + r'\s*$\n(.*?)(?=^##\s+|\Z)', text or '', re.I | re.M | re.S)
+    return m.group(1).strip() if m else ''
+
+
+def score_capability(task, category):
+    """Transparent v0.1 task score, not a claim about whole-job replacement.
+
+    AI execution estimates the share a current tool-using agent can perform.
+    Human accountability measures how strongly a person must own consent,
+    relationships, spend, judgment, or physical-world action. Automation
+    exposure is deliberately lower when accountability stays human.
+    """
+    title_desc = ((task.get('title') or '').replace('-', ' ') + ' ' + (task.get('desc') or '')).strip()
+    content = task.get('content') or ''
+    all_text = title_desc + '\n' + content
+    inputs = section(content, r'Inputs')
+    examples = section(content, r'Example(?:\(s\))?')
+
+    flags = {
+        'physical': bool(PHYSICAL.search(title_desc)),
+        'relationship': bool(RELATIONSHIP.search(title_desc)),
+        'deterministic': bool(DETERMINISTIC.search(title_desc)),
+        'generative': bool(GENERATIVE.search(title_desc)),
+        'judgment': bool(JUDGMENT.search(title_desc)),
+        'externalAction': bool(EXTERNAL_ACTION.search(title_desc)),
+        'spend': bool(SPEND.search(title_desc)),
+        'highStakes': bool(HIGH_STAKES.search(all_text)),
+        'longHorizon': bool(LONG_HORIZON.search(title_desc)),
+    }
+
+    execution = CAPABILITY_BASE.get(category, 65)
+    reasons = []
+    if flags['deterministic']:
+        execution += 8
+        reasons.append('Checkable, structured work')
+    if flags['generative']:
+        execution += 7
+        reasons.append('Digital creation or transformation')
+    if flags['judgment']:
+        execution -= 8
+        reasons.append('Requires contextual judgment')
+    if flags['externalAction']:
+        execution -= 5
+        reasons.append('Changes an external system')
+    if flags['relationship']:
+        execution -= 24
+        reasons.append('Trust or relationship work stays human')
+    if flags['longHorizon']:
+        execution -= 5
+        reasons.append('Persistent follow-through required')
+    if flags['physical']:
+        execution = min(execution, 30)
+        reasons.insert(0, 'Physical-world capture required')
+    if re.search(r'^##\s+Definition of done', content, re.I | re.M):
+        execution += 4
+    if not content.strip():
+        execution -= 12
+        reasons.append('No runnable skill content yet')
+    execution = clamp(execution, 8, 98)
+
+    accountability = 24
+    if category in ('Content Factory — Post', 'Content Factory — Promote', 'Dollar a Day Campaigns'):
+        accountability += 10
+    if category in ('Personal Branding', 'Strategy & Measurement', 'Thank You Machine'):
+        accountability += 12
+    if flags['deterministic']:
+        accountability -= 8
+    if flags['generative']:
+        accountability += 4
+    if flags['judgment']:
+        accountability += 18
+    if flags['externalAction']:
+        accountability += 22
+    if flags['spend']:
+        accountability += 22
+    if flags['highStakes']:
+        accountability += 18
+    if flags['relationship']:
+        accountability += 32
+    if flags['physical']:
+        accountability = max(accountability, 86)
+    accountability = clamp(accountability, 8, 96)
+
+    readiness = {'complete': 78, 'needs-work': 54, 'gap': 24}.get(task.get('status'), 40)
+    if task.get('article'):
+        readiness += 10
+    if inputs:
+        readiness += 5
+    if re.search(r'^##\s+Definition of done', content, re.I | re.M):
+        readiness += 5
+    real_example = any(
+        line.lstrip().startswith('-') and not STUB.search(line) and not re.search(r'example needed|candidate', line, re.I)
+        for line in examples.splitlines())
+    readiness += 8 if real_example else -5
+
+    access_required = bool(ACCESS_NEEDED.search(title_desc))
+    access_documented = bool(ACCESS_GUIDANCE.search(inputs)) if access_required else True
+    if access_required and not access_documented:
+        readiness -= 10
+    readiness = clamp(readiness, 10, 100)
+
+    automation_exposure = clamp(execution * (1 - 0.70 * accountability / 100), 3, 95)
+    if execution >= 80 and accountability < 35:
+        mode = 'Automation candidate'
+    elif execution >= 65 and accountability < 70:
+        mode = 'Agent + reviewer'
+    elif execution >= 35:
+        mode = 'Human-led + AI'
+    else:
+        mode = 'Human-owned'
+    access = ('Privileged access named' if access_required and access_documented else
+              'Access guidance missing' if access_required else 'No privileged access detected')
+
+    return {
+        'version': CAPABILITY_VERSION,
+        'aiExecution': execution,
+        'humanAccountability': accountability,
+        'automationExposure': automation_exposure,
+        'readiness': readiness,
+        'evidenceLevel': 'E0',
+        'confidence': 'low',
+        'mode': mode,
+        'access': access,
+        'reasons': reasons[:3] or ['Bounded task with a documented QA gate'],
+    }
+
 
 def folder_of(name):
     return re.sub(r'[^a-z0-9]+', '-', name.lower().replace('—', ' ')).strip('-')
@@ -163,9 +342,11 @@ def write_library_index(data, out_path):
     st = data['stats']
     L.append('<!-- Task Library static index — generated by build.py; do not edit by hand -->')
     L.append('<section id="task-library-index">')
-    L.append(f"<p>The BlitzMetrics Task Library documents <strong>{st['total']} operational tasks</strong> "
-             f"across {st['categories']} categories — each one a runnable SOP tied to a definitive article. "
-             f"{st['complete']} are ready, {st['needsWork']} in progress, {st['gaps']} identified gaps. "
+    L.append(f"<p>The BlitzMetrics Task Library registers <strong>{st['total']} operational tasks</strong> "
+             f"across {st['categories']} categories. Each record opens the current skill and links a definitive "
+             f"article where one exists; missing context, access, examples, or hubs stay visible as gaps. "
+             f"{st['complete']} are marked complete, {st['needsWork']} need work, and {st['gaps']} are gaps. "
+             f"Status describes documentation readiness, not proven production reliability. "
              f"Updated {html_escape(data['updated'])}.</p>")
     for c in data['categories']:
         L.append(f"<h2>{html_escape(c['name'])}</h2>")
@@ -173,11 +354,15 @@ def write_library_index(data, out_path):
         L.append('<ul>')
         for t in c['tasks']:
             label = html_escape(t['title'].replace('-', ' ').capitalize())
-            desc = html_escape(t['desc'])
-            if t.get('article'):
-                L.append(f'<li><a href="{html_escape(t["article"])}">{label}</a> — {desc}</li>')
-            else:
-                L.append(f'<li>{label} — {desc}</li>')
+            desc = html_escape((t['desc'] or '').rstrip().rstrip('.'))
+            task_url = 'https://goodrich-dev.github.io/task-library/#task=' + html_escape(t['slug'])
+            cap = t.get('capability') or {}
+            score = (f' AI execution {cap.get("aiExecution", "—")}/100; '
+                     f'human accountability {cap.get("humanAccountability", "—")}/100; '
+                     f'automation exposure {cap.get("automationExposure", "—")}/100.')
+            article = (f' <a href="{html_escape(t["article"])}">Definitive article</a>.'
+                       if t.get('article') else '')
+            L.append(f'<li><a href="{task_url}">{label}</a> — {desc}.{html_escape(score)}{article}</li>')
         L.append('</ul>')
     L.append('</section>')
     open(out_path, 'w', encoding='utf-8').write('\n'.join(L) + '\n')
@@ -315,7 +500,9 @@ def main():
                 art = ov['Definitive Article URL'].strip()   # sheet overrides only when filled; file frontmatter is the default
         task = {'title': fm['name'], 'slug': slug, 'status': status,
                 'stage': fm['stage'] or '—', 'article': art,
-                'desc': fm['description'], 'content': text.strip()}
+                'desc': fm['description'], 'content': text.strip(),
+                'sourceType': 'hub' if entry.get('source') == 'local' else 'spoke'}
+        task['capability'] = score_capability(task, entry['category'])
         if entry.get('flag'):
             task['flag'] = entry['flag']
         if entry.get('download'):
@@ -342,15 +529,39 @@ def main():
             seen_src[src] = slug
     for slug, t in sheet_only.items():
         cat = t.pop('category')
+        t['sourceType'] = 'tracker-gap'
+        t['capability'] = score_capability(t, cat)
         by_cat[cat].append(t)
     all_tasks = [t for ts in by_cat.values() for t in ts]
+    ai_scores = sorted(t['capability']['aiExecution'] for t in all_tasks)
+    exposure_scores = sorted(t['capability']['automationExposure'] for t in all_tasks)
+    mid = len(ai_scores) // 2
+    median_ai = (ai_scores[mid] if len(ai_scores) % 2 else round((ai_scores[mid - 1] + ai_scores[mid]) / 2)) if ai_scores else 0
+    median_exposure = (exposure_scores[mid] if len(exposure_scores) % 2 else round((exposure_scores[mid - 1] + exposure_scores[mid]) / 2)) if exposure_scores else 0
+    mode_counts = {}
+    for t in all_tasks:
+        mode = t['capability']['mode']
+        mode_counts[mode] = mode_counts.get(mode, 0) + 1
     data = {'stats': {'total': len(all_tasks),
                       'complete': sum(t['status'] == 'complete' for t in all_tasks),
                       'needsWork': sum(t['status'] == 'needs-work' for t in all_tasks),
                       'gaps': sum(t['status'] == 'gap' for t in all_tasks),
+                      'hubSkills': sum(t.get('sourceType') == 'hub' for t in all_tasks),
+                      'spokeSkills': sum(t.get('sourceType') != 'hub' for t in all_tasks),
                       'definitiveArticles': len({t['article'] for t in all_tasks if t.get('article')}),
                       'owners': len({t['owner'] for t in all_tasks if t.get('owner')}),
                       'categories': len(cats_meta)},
+            'capabilityIndex': {
+                'version': CAPABILITY_VERSION,
+                'asOf': site.get('capabilityAsOf', site['updated']),
+                'methodologyUrl': site.get('capabilityMethodologyUrl', ''),
+                'medianAIExecution': median_ai,
+                'medianAutomationExposure': median_exposure,
+                'highExecutionTasks': sum(s >= 80 for s in ai_scores),
+                'highAutomationTasks': sum(s >= 65 for s in exposure_scores),
+                'modeCounts': mode_counts,
+                'note': 'Task-level E0 baseline; automation exposure is not a forecast of whole-job loss.'
+            },
             'bundleUrl': 'TaskLibrary-Skills-all.zip', 'metaArticleUrl': site['metaArticleUrl'],
             'updated': site['updated'],
             'categories': [dict(c, tasks=by_cat[c['name']]) for c in cats_meta]}
