@@ -56,6 +56,12 @@ class CapabilityGuardrailTests(unittest.TestCase):
             self.assertGreaterEqual(cap[key], 0)
             self.assertLessEqual(cap[key], 100)
 
+    def test_legacy_double_hyphen_task_ids_remain_valid(self):
+        self.assertIsNotNone(task_build.SLUG.fullmatch(
+            'ensure-robots-meta-not-blocking-indexing--qa-audit'
+        ))
+        self.assertIsNone(task_build.SLUG.fullmatch('-invalid--slug-'))
+
 
 if __name__ == '__main__':
     unittest.main()
