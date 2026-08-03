@@ -43,4 +43,4 @@ See `boil-the-ocean.md` for the full operating principles.
 ## Definitive article & links
 - Hub: /digital-plumbing
 - Related (run order): verify-google-business-profile → this → add-schema-markup-person-localbusiness (schema NAP must match) → set-up-consistent-headshots-and-bios-across-profiles
-- Cross-links: /website-qa-audit · /knowledge-panel (entity consistency is the foundation of a panel)
+- Cross-links: /website-qa-audit · /what-is-a-knowledge-panel (entity consistency is the foundation of a panel)
