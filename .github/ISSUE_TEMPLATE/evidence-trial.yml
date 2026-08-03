@@ -2,8 +2,7 @@ name: Capability evidence trial proposal
 description: Preregister a bounded E1-E4 trial against one exact Task Library contract and skill revision.
 title: "[Evidence trial]: "
 labels:
-  - intake
-  - evidence-trial
+  - enhancement
 body:
   - type: markdown
     attributes:
