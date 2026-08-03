@@ -61,8 +61,9 @@ JUDGMENT = re.compile(
     r'\b(strategy|recommend|prioritize|diagnose|decide|select|strongest|best|brand voice|audience|offer|'
     r'performance|unsupported claims?|editorial|business outcome)\b', re.I)
 EXTERNAL_ACTION = re.compile(
-    r'\b(publish|post to|send|email|dm|upload|boost|launch|campaign|budget|kill|scale|claim|change|'
-    r'configure dns|registrar|business manager|wordpress author)\b', re.I)
+    r'\b(publish|post to|send|email|dm|upload|boost|launch|submit|approve|invite|grant|campaign|budget|'
+    r'kill|scale|claim|change|update|delete|remove|fix|set|configure dns|registrar|business manager|'
+    r'wordpress author)\b', re.I)
 SPEND = re.compile(r'\b(ads?|ad set|budget|campaign|spend|boost|dollar[- ]a[- ]day|scale winners?|kill underperformers?)\b', re.I)
 HIGH_STAKES = re.compile(
     r'\b(legal|medical|privacy|permission|consent|financial|invoice|contract|copyright|domain ownership|'
@@ -132,14 +133,18 @@ def score_capability(task, category):
         execution -= 5
         reasons.append('Persistent follow-through required')
     if flags['physical']:
-        execution = min(execution, 30)
         reasons.insert(0, 'Physical-world capture required')
     if re.search(r'^##\s+Definition of done', content, re.I | re.M):
         execution += 4
     if not content.strip():
         execution -= 12
         reasons.append('No runnable skill content yet')
+    if flags['physical']:
+        execution = min(execution, 30)
     execution = clamp(execution, 8, 98)
+
+    access_required = bool(ACCESS_NEEDED.search(title_desc + '\n' + inputs))
+    access_documented = bool(ACCESS_GUIDANCE.search(inputs)) if access_required else True
 
     accountability = 24
     if category in ('Content Factory — Post', 'Content Factory — Promote', 'Dollar a Day Campaigns'):
@@ -160,6 +165,9 @@ def score_capability(task, category):
         accountability += 18
     if flags['relationship']:
         accountability += 32
+    if access_required:
+        accountability += 14
+        reasons.append('Privileged access requires accountable review')
     if flags['physical']:
         accountability = max(accountability, 86)
     accountability = clamp(accountability, 8, 96)
@@ -176,14 +184,12 @@ def score_capability(task, category):
         for line in examples.splitlines())
     readiness += 8 if real_example else -5
 
-    access_required = bool(ACCESS_NEEDED.search(title_desc))
-    access_documented = bool(ACCESS_GUIDANCE.search(inputs)) if access_required else True
     if access_required and not access_documented:
         readiness -= 10
     readiness = clamp(readiness, 10, 100)
 
     automation_exposure = clamp(execution * (1 - 0.70 * accountability / 100), 3, 95)
-    if execution >= 80 and accountability < 35:
+    if execution >= 80 and accountability < 35 and not access_required:
         mode = 'Automation candidate'
     elif execution >= 65 and accountability < 70:
         mode = 'Agent + reviewer'
