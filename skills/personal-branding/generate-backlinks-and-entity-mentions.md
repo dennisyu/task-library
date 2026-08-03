@@ -42,4 +42,4 @@ See `boil-the-ocean.md` for the full operating principles.
 
 ## Definitive article & links
 - Hub: /personal-brand
-- Related: /knowledge-panel · /dad · siblings in run order: get-featured-on-podcasts → secure-guest-appearances-and-speaking-engagements → create-collaborative-content-with-industry-peers → get-mentioned-in-publications
+- Related: /what-is-a-knowledge-panel · /dad · siblings in run order: get-featured-on-podcasts → secure-guest-appearances-and-speaking-engagements → create-collaborative-content-with-industry-peers → get-mentioned-in-publications
